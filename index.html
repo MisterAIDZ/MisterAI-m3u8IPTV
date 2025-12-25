@@ -2,107 +2,59 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOUSE AI | GLOBAL IPTV SYSTEM</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>MOUSE AI | IPTV SYSTEM</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #00d2ff; --accent: #00ff88; --bg-dark: #02040a; --panel-bg: #0d1117; --text: #e6edf3; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-        body { background: var(--bg-dark); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        nav { height: 70px; background: #000; border-bottom: 2px solid var(--primary); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; z-index: 10; }
-        .brand { font-family: 'Orbitron'; font-size: 1.8rem; color: var(--primary); letter-spacing: 2px; }
-        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 350px; background: var(--panel-bg); border-left: 1px solid #30363d; display: flex; flex-direction: column; }
-        .control-panel { padding: 20px; background: #161b22; border-bottom: 1px solid #333; }
-        .btn-action { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; transition: 0.3s; }
-        .channel-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .channel-item { display: flex; align-items: center; padding: 10px; background: #161b22; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
-        .channel-item:hover { border-color: var(--primary); transform: translateX(-5px); }
-        .channel-item img { width: 40px; height: 40px; border-radius: 5px; margin-left: 12px; object-fit: contain; background: #fff; }
-        .content-area { flex: 1; padding: 20px; background: #05070a; display: flex; flex-direction: column; }
-        .video-box { flex: 1; background: #000; border-radius: 15px; overflow: hidden; border: 1px solid #333; }
-        video { width: 100%; height: 100%; }
-        .now-playing { margin-top: 15px; padding: 15px; background: var(--panel-bg); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-        footer { height: 40px; background: #000; border-top: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #8b949e; }
+        body { background: #02040a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .video-container { width: 80%; margin: auto; border: 2px solid #00d2ff; border-radius: 10px; overflow: hidden; background: #000; }
+        video { width: 100%; aspect-ratio: 16/9; }
+        button { padding: 15px 30px; background: #00d2ff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+        .info { margin-top: 10px; color: #8b949e; }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="brand">MOUSE AI <span style="font-size: 0.7rem; opacity: 0.5;">IPTV</span></div>
-        <div id="loadStatus" style="color: var(--accent); font-size: 0.9rem;">جاهز للعمل</div>
-    </nav>
-    <div class="main-wrapper">
-        <aside class="sidebar">
-            <div class="control-panel">
-                <button class="btn-action" onclick="loadChannels()"><i class="fas fa-sync"></i> تحميل القنوات</button>
-            </div>
-            <div class="channel-list" id="listContainer"></div>
-        </aside>
-        <main class="content-area">
-            <div class="video-box"><video id="player" controls autoplay></video></div>
-            <div class="now-playing">
-                <div><h2 id="vName" style="color: var(--primary); font-size: 1.1rem;">اختر قناة</h2><p id="vGroup" style="color: #666; font-size: 0.8rem;">نظام MisterAI</p></div>
-                <div id="count" style="color: #8b949e; font-size: 0.8rem;">0 قناة</div>
-            </div>
-        </main>
+    <h1>نظام MOUSE AI للبث</h1>
+    <button onclick="playStream()">تشغيل البث الآن</button>
+    
+    <div class="video-container">
+        <video id="player" controls autoplay></video>
     </div>
-    <footer>Developed by MUSTAPHA (MisterAI) &copy; 2025</footer>
+    
+    <div class="info" id="status">جاهز للبدء..</div>
 
     <script>
-        // ضع هنا رابط الـ M3U الجديد الخاص بك
-        const M3U_URL = "https://iptv-org.github.io/iptv/languages/ara.m3u"; 
-        const video = document.getElementById('player');
-        let hls = new Hls();
-        let allChannels = [];
+        // بياناتك التي تعمل على VLC
+        const CONFIG = {
+            host: "http://live.stablechannels.tv:80",
+            user: "nfsthbbx",
+            pass: "vFf8aZ2n92",
+            channelId: "12345" // استبدل هذا برقم قناة حقيقي من ملفك
+        };
 
-        async function loadChannels() {
-            document.getElementById('loadStatus').textContent = "جاري التحميل...";
-            const proxyUrl = `/api/proxy?url=${encodeURIComponent(M3U_URL)}`;
-            try {
-                const response = await fetch(proxyUrl);
-                const data = await response.text();
-                parseM3U(data);
-                document.getElementById('loadStatus').textContent = "تم التحديث ✅";
-            } catch (e) { document.getElementById('loadStatus').textContent = "خطأ في الاتصال ❌"; }
-        }
+        function playStream() {
+            const video = document.getElementById('player');
+            const status = document.getElementById('status');
+            
+            // بناء الرابط الأصلي (الذي يعمل في VLC)
+            const originalUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${CONFIG.channelId}.ts`;
+            
+            // تمريره عبر البروكسي (ليعمل في المتصفح)
+            const proxiedUrl = `/api/proxy?url=${encodeURIComponent(originalUrl)}`;
 
-        function parseM3U(data) {
-            const lines = data.split('\n');
-            allChannels = [];
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('#EXTINF:')) {
-                    const name = lines[i].split(',')[1]?.trim() || "Unknown";
-                    const logo = lines[i].match(/tvg-logo="([^"]+)"/)?.[1] || "";
-                    const url = lines[i+1]?.trim();
-                    if (url && url.startsWith('http')) allChannels.push({ name, logo, url });
-                }
-            }
-            render(allChannels);
-            document.getElementById('count').textContent = `${allChannels.length} قناة`;
-        }
+            status.textContent = "جاري الاتصال عبر البروكسي...";
 
-        function render(list) {
-            const container = document.getElementById('listContainer');
-            container.innerHTML = '';
-            list.slice(0, 200).forEach(c => {
-                const item = document.createElement('div');
-                item.className = 'channel-item';
-                item.innerHTML = `<img src="${c.logo}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'"> <b>${c.name}</b>`;
-                item.onclick = () => play(c);
-                container.appendChild(item);
-            });
-        }
-
-        function play(c) {
-            document.getElementById('vName').textContent = c.name;
-            const finalUrl = `/api/proxy?url=${encodeURIComponent(c.url)}`;
             if (Hls.isSupported()) {
-                hls.destroy(); hls = new Hls();
-                hls.loadSource(finalUrl); hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-            } else { video.src = finalUrl; }
+                const hls = new Hls();
+                hls.loadSource(proxiedUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play();
+                    status.textContent = "البث يعمل بنجاح ✅";
+                });
+            } else {
+                video.src = proxiedUrl;
+                video.play();
+            }
         }
     </script>
 </body>
