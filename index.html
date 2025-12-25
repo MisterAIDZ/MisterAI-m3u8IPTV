@@ -90,7 +90,15 @@
         <div class="control-panel">
             <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--primary);">تحديث المصدر العالمي:</p>
             <button class="btn-action" onclick="fetchGlobalList()"><i class="fas fa-sync-alt"></i> تحديث القنوات العالمية</button>
-            <p style="font-size: 0.7rem; color: #666; margin-top: 5px;">يتم التحديث من: iptv-org</p>
+            
+            <p style="font-size: 0.75rem; color: var(--accent); margin: 10px 0 5px 0;">اختر قائمة القنوات:</p>
+            <select id="sourceSelector" class="input-box" onchange="changeSource()">
+                <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">القنوات العربية</option>
+                <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">الرياضة العالمية</option>
+                <option value="https://iptv-org.github.io/iptv/categories/movies.m3u">أفلام وسينما</option>
+                <option value="https://iptv-org.github.io/iptv/categories/animation.m3u">أطفال وكرتون</option>
+                <option value="http://live.stablechannels.tv:80/get.php?username=nfsthbbx&password=vFf8aZ2n92&type=m3u_plus&output=ts">سيرفري الخاص</option>
+            </select>
         </div>
 
         <div class="search-area">
@@ -124,10 +132,12 @@
 </footer>
 
 <script>
-    const GLOBAL_URL = "https://iptv-org.github.io/iptv/languages/ara.m3u";
+    // تم تغييرها إلى let بدلاً من const لتسمح بالتبديل بين الروابط
+    let GLOBAL_URL = "https://iptv-org.github.io/iptv/languages/ara.m3u";
     let allChannels = [];
     const video = document.getElementById('player');
     const hls = new Hls();
+
     window.onload = () => {
         const saved = localStorage.getItem('MisterAI_Global_Data');
         if (saved) {
@@ -138,16 +148,25 @@
             fetchGlobalList();
         }
     };
+
+    // دالة جديدة للتبديل بين المصادر
+    function changeSource() {
+        GLOBAL_URL = document.getElementById('sourceSelector').value;
+        localStorage.removeItem('MisterAI_Global_Data'); // مسح الكاش لجلب القائمة الجديدة
+        fetchGlobalList();
+    }
+
     async function fetchGlobalList() {
         document.getElementById('loadStatus').textContent = "جاري التحميل...";
         try {
-            const response = await fetch(GLOBAL_URL);
+            // استخدام البروكسي لضمان عمل الروابط على المتصفح (CORS)
+            const proxiedUrl = `/api/proxy?url=${encodeURIComponent(GLOBAL_URL)}`;
+            const response = await fetch(proxiedUrl);
             const data = await response.text();
             parseChannels(data);
             document.getElementById('loadStatus').textContent = "تم التحديث بنجاح";
         } catch (err) {
             document.getElementById('loadStatus').textContent = "فشل التحديث - جرب لاحقاً";
-            alert("حدث خطأ أثناء جلب القنوات العالمية.");
         }
     }
 
@@ -187,7 +206,7 @@
     function renderList(data) {
         const container = document.getElementById('listContainer');
         container.innerHTML = '';
-        data.slice(0, 500).forEach(c => { // عرض أول 500 قناة للأداء السلس
+        data.slice(0, 500).forEach(c => { 
             const item = document.createElement('div');
             item.className = 'channel-item';
             item.innerHTML = `
@@ -214,20 +233,21 @@
     function play(c) {
         document.getElementById('viewName').textContent = c.name;
         document.getElementById('viewGroup').textContent = c.group;
+        
+        // تمرير رابط البث عبر البروكسي ليعمل في المتصفح
+        const proxiedStream = `/api/proxy?url=${encodeURIComponent(c.url)}`;
+
         if (Hls.isSupported()) {
             hls.destroy();
             const newHls = new Hls();
-            newHls.loadSource(c.url);
+            newHls.loadSource(proxiedStream);
             newHls.attachMedia(video);
             newHls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
         } else {
-            video.src = c.url;
+            video.src = proxiedStream;
             video.play();
         }
     }
 </script>
 </body>
 </html>
-
-
-
