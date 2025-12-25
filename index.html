@@ -139,7 +139,22 @@
             fetchGlobalList();
         }
     };
+<script>
+    const GLOBAL_URL = "https://iptv-org.github.io/iptv/categories/sports.m3u";
+    let allChannels = [];
+    const video = document.getElementById('player');
+    const hls = new Hls();
 
+    window.onload = () => {
+        const saved = localStorage.getItem('MisterAI_Global_Data');
+        if (saved) {
+            allChannels = JSON.parse(saved);
+            refreshUI();
+            document.getElementById('loadStatus').textContent = "متصل - ذاكرة محلية";
+        } else {
+            fetchGlobalList();
+        }
+    };
     async function fetchGlobalList() {
         document.getElementById('loadStatus').textContent = "جاري التحميل...";
         try {
@@ -230,3 +245,4 @@
 </script>
 </body>
 </html>
+
