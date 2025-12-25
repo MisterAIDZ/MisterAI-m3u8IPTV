@@ -1,24 +1,18 @@
 // api/proxy.js
 export default async function handler(req, res) {
     const { url } = req.query;
-
-    if (!url) {
-        return res.status(400).send("Missing URL");
-    }
+    if (!url) return res.status(400).send("No URL provided");
 
     try {
         const response = await fetch(url);
+        const data = await response.arrayBuffer();
         
-        // إضافة تصاريح الوصول (CORS) ليعمل على المتصفح
+        // إعدادات السماح لكي يعمل المشغل بدون قيود CORS
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET');
-        res.setHeader('Content-Type', response.headers.get('content-type'));
-
-        // تمرير البث مباشرة للمشغل
-        const readableStream = response.body;
-        readableStream.pipe(res);
+        res.setHeader('Content-Type', response.headers.get('content-type') || 'application/octet-stream');
         
-    } catch (error) {
-        res.status(500).send("Proxy Error: " + error.message);
+        res.send(Buffer.from(data));
+    } catch (e) {
+        res.status(500).send("Proxy Error");
     }
 }
