@@ -88,11 +88,10 @@
 <div class="main-wrapper">
     <aside class="sidebar">
         <div class="control-panel">
-            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--primary);">تحديث المصدر العالمي:</p>
-            <button class="btn-action" onclick="fetchGlobalList()"><i class="fas fa-sync-alt"></i> تحديث القنوات العالمية</button>
+            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--primary);">تحديث المصدر:</p>
+            <button class="btn-action" onclick="fetchGlobalList()"><i class="fas fa-sync-alt"></i> تحديث القنوات</button>
             
-            <p style="font-size: 0.75rem; color: var(--accent); margin: 10px 0 5px 0;">اختر قائمة القنوات:</p>
-            <select id="sourceSelector" class="input-box" onchange="changeSource()">
+            <select id="sourceSelector" class="input-box" style="margin-top: 10px; border-color: var(--primary);" onchange="changeSource()">
                 <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">القنوات العربية</option>
                 <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">الرياضة العالمية</option>
                 <option value="https://iptv-org.github.io/iptv/categories/movies.m3u">أفلام وسينما</option>
@@ -108,8 +107,7 @@
             </select>
         </div>
 
-        <div class="channel-list" id="listContainer">
-            </div>
+        <div class="channel-list" id="listContainer"></div>
     </aside>
 
     <main class="content-area">
@@ -132,8 +130,8 @@
 </footer>
 
 <script>
-    // تم تغييرها إلى let بدلاً من const لتسمح بالتبديل بين الروابط
-    let GLOBAL_URL = "https://iptv-org.github.io/iptv/languages/ara.m3u";
+    // جعلنا الرابط متغيراً ليتغير عند اختيار مصدر جديد
+    let CURRENT_GLOBAL_URL = "https://iptv-org.github.io/iptv/languages/ara.m3u";
     let allChannels = [];
     const video = document.getElementById('player');
     const hls = new Hls();
@@ -149,19 +147,18 @@
         }
     };
 
-    // دالة جديدة للتبديل بين المصادر
+    // دالة التبديل البسيطة كما طلبت
     function changeSource() {
-        GLOBAL_URL = document.getElementById('sourceSelector').value;
-        localStorage.removeItem('MisterAI_Global_Data'); // مسح الكاش لجلب القائمة الجديدة
+        CURRENT_GLOBAL_URL = document.getElementById('sourceSelector').value;
+        localStorage.removeItem('MisterAI_Global_Data'); 
         fetchGlobalList();
     }
 
     async function fetchGlobalList() {
         document.getElementById('loadStatus').textContent = "جاري التحميل...";
         try {
-            // استخدام البروكسي لضمان عمل الروابط على المتصفح (CORS)
-            const proxiedUrl = `/api/proxy?url=${encodeURIComponent(GLOBAL_URL)}`;
-            const response = await fetch(proxiedUrl);
+            // نستخدم fetch المباشر كما كان في كودك الأصلي تماماً
+            const response = await fetch(CURRENT_GLOBAL_URL);
             const data = await response.text();
             parseChannels(data);
             document.getElementById('loadStatus').textContent = "تم التحديث بنجاح";
@@ -230,21 +227,18 @@
         renderList(filtered);
     }
 
+    // دالة التشغيل الأصلية الخاصة بك دون أي تعديل (بدون بروكسي)
     function play(c) {
         document.getElementById('viewName').textContent = c.name;
         document.getElementById('viewGroup').textContent = c.group;
-        
-        // تمرير رابط البث عبر البروكسي ليعمل في المتصفح
-        const proxiedStream = `/api/proxy?url=${encodeURIComponent(c.url)}`;
-
         if (Hls.isSupported()) {
             hls.destroy();
             const newHls = new Hls();
-            newHls.loadSource(proxiedStream);
+            newHls.loadSource(c.url);
             newHls.attachMedia(video);
             newHls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
         } else {
-            video.src = proxiedStream;
+            video.src = c.url;
             video.play();
         }
     }
