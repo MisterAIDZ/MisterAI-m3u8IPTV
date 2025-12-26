@@ -1,0 +1,9 @@
+[
+  //...
+  {
+    "code": "MAGHREB",
+    "name": "Maghreb",
+    "countries": ["DZ", "LY", "MA", "MR", "TN"]
+  }
+  //...
+]
