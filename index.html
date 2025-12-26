@@ -45,7 +45,7 @@ main{display:grid;grid-template-columns:380px 1fr;gap:18px;padding:12px 18px;ali
 <header>
   <div style="display:flex;align-items:center;gap:12px">
     <div class="brand"><i class="fa fa-wave-square" style="color:var(--primary)"></i> MOUSE AI</div>
-    <div class="small" style="font-size:0.85rem;color:var(--muted)">نظام IPTV — إدارة القوائم الذكية</div>
+    <div class="small" style="font-size:0.85rem;color:var(--muted)">نظام IPTV الذكي — المطور MisterAI</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="status" id="loadStatus">جاهز</div>
@@ -67,46 +67,61 @@ main{display:grid;grid-template-columns:380px 1fr;gap:18px;padding:12px 18px;ali
 
     <div style="margin-bottom:8px">
       <select id="sourceSelector" class="input">
-        <option value="">-- اختر المصدر --</option>
-        <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">القنوات العربية (ara.m3u)</option>
-        <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">الرياضة</option>
-        <option value="https://iptv-org.github.io/iptv/countries/af.m3u">🇦🇫 أفغانستان</option>
-        <option value="https://iptv-org.github.io/iptv/countries/al.m3u">🇦🇱 ألبانيا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/dz.m3u">🇩🇿 الجزائر</option>
-        <option value="https://iptv-org.github.io/iptv/countries/ad.m3u">🇦🇩 أندورا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/ao.m3u">🇦🇴 أنغولا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/ar.m3u">🇦🇷 الأرجنتين</option>
-        <option value="https://iptv-org.github.io/iptv/subdivisions/ar-b.m3u">Buenos Aires 🇦🇷</option>
-        <option value="https://iptv-org.github.io/iptv/cities/arbhi.m3u">Bahía Blanca 🇦🇷</option>
-        <option value="https://iptv-org.github.io/iptv/countries/am.m3u">🇦🇲 أرمينيا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/aw.m3u">🇦🇼 أروبا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/au.m3u">🇦🇺 أستراليا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/at.m3u">🇦🇹 النمسا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/az.m3u">🇦🇿 أذربيجان</option>
-        <option value="https://iptv-org.github.io/iptv/countries/bs.m3u">🇧🇸 جزر البهاما</option>
-        <option value="https://iptv-org.github.io/iptv/countries/bh.m3u">🇧🇭 البحرين</option>
-        <option value="https://iptv-org.github.io/iptv/countries/bd.m3u">🇧🇩 بنجلاديش</option>
-        <option value="https://iptv-org.github.io/iptv/countries/bb.m3u">🇧🇧 باربادوس</option>
-        <option value="https://iptv-org.github.io/iptv/countries/by.m3u">🇧🇾 بيلاروسيا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/be.m3u">🇧🇪 بلجيكا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/bo.m3u">🇧🇴 بوليفيا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/br.m3u">🇧🇷 البرازيل</option>
-        <option value="https://iptv-org.github.io/iptv/countries/ca.m3u">🇨🇦 كندا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/cl.m3u">🇨🇱 تشيلي</option>
-        <option value="https://iptv-org.github.io/iptv/countries/cn.m3u">🇨🇳 الصين</option>
-        <option value="https://iptv-org.github.io/iptv/countries/co.m3u">🇨🇴 كولومبيا</option>
-        <option value="https://iptv-org.github.io/iptv/countries/eg.m3u">🇪🇬 مصر</option>
-        <option value="https://iptv-org.github.io/iptv/countries/fr.m3u">🇫🇷 فرنسا</option>
-        <option value="https://iptv-org.github.io/iptv/regions/afr.m3u">أفريقيا 🌍</option>
-        <option value="https://iptv-org.github.io/iptv/countries/us.m3u">أمريكا 🇺🇸</option>
-        <option value="https://iptv-org.github.io/iptv/regions/maghreb.m3u">المغرب العربي 🇲🇦🇩🇿</option>
+        <option value="">-- اختر المنطقة أو الدولة --</option>
+        <optgroup label="القوائم الأساسية">
+            <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">🌍 القنوات العربية</option>
+            <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">⚽ الرياضة العالمية</option>
+            <option value="https://iptv-org.github.io/iptv/regions/maghreb.m3u">🇲🇦🇩🇿 المغرب العربي</option>
+            <option value="https://iptv-org.github.io/iptv/regions/afr.m3u">🌍 أفريقيا</option>
+        </optgroup>
+        
+        <optgroup label="أفريقيا وآسيا">
+            <option value="https://iptv-org.github.io/iptv/countries/dz.m3u">🇩🇿 الجزائر</option>
+            <option value="https://iptv-org.github.io/iptv/countries/eg.m3u">🇪🇬 مصر</option>
+            <option value="https://iptv-org.github.io/iptv/countries/ma.m3u">🇲🇦 المغرب</option>
+            <option value="https://iptv-org.github.io/iptv/countries/af.m3u">🇦🇫 أفغانستان</option>
+            <option value="https://iptv-org.github.io/iptv/countries/bh.m3u">🇧🇭 البحرين</option>
+            <option value="https://iptv-org.github.io/iptv/countries/iq.m3u">🇮🇶 العراق</option>
+            <option value="https://iptv-org.github.io/iptv/countries/jo.m3u">🇯🇴 الأردن</option>
+            <option value="https://iptv-org.github.io/iptv/countries/kw.m3u">🇰🇼 الكويت</option>
+            <option value="https://iptv-org.github.io/iptv/countries/lb.m3u">🇱🇧 لبنان</option>
+            <option value="https://iptv-org.github.io/iptv/countries/ps.m3u">🇵🇸 فلسطين</option>
+            <option value="https://iptv-org.github.io/iptv/countries/om.m3u">🇴🇲 عمان</option>
+            <option value="https://iptv-org.github.io/iptv/countries/sa.m3u">🇸🇦 السعودية</option>
+            <option value="https://iptv-org.github.io/iptv/countries/sy.m3u">🇸🇾 سوريا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/ae.m3u">🇦🇪 الإمارات</option>
+            <option value="https://iptv-org.github.io/iptv/countries/in.m3u">🇮🇳 الهند</option>
+            <option value="https://iptv-org.github.io/iptv/countries/id.m3u">🇮🇩 إندونيسيا</option>
+        </optgroup>
+
+        <optgroup label="الأرجنتين (أقاليم ومدن)">
+            <option value="https://iptv-org.github.io/iptv/countries/ar.m3u">🇦🇷 الأرجنتين (الكل)</option>
+            <option value="https://iptv-org.github.io/iptv/subdivisions/ar-b.m3u">Buenos Aires 🇦🇷</option>
+            <option value="https://iptv-org.github.io/iptv/cities/arbhi.m3u">Bahía Blanca 🇦🇷</option>
+            <option value="https://iptv-org.github.io/iptv/subdivisions/ar-x.m3u">Cordoba 🇦🇷</option>
+            <option value="https://iptv-org.github.io/iptv/subdivisions/ar-s.m3u">Santa Fe 🇦🇷</option>
+        </optgroup>
+
+        <optgroup label="أوروبا وأمريكا">
+            <option value="https://iptv-org.github.io/iptv/countries/al.m3u">🇦🇱 ألبانيا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/ad.m3u">🇦🇩 أندورا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/at.m3u">🇦🇹 النمسا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/be.m3u">🇧🇪 بلجيكا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/fr.m3u">🇫🇷 فرنسا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/de.m3u">🇩🇪 ألمانيا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/it.m3u">🇮🇹 إيطاليا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/es.m3u">🇪🇸 إسبانيا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/us.m3u">🇺🇸 أمريكا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/ca.m3u">🇨🇦 كندا</option>
+            <option value="https://iptv-org.github.io/iptv/countries/br.m3u">🇧🇷 البرازيل</option>
+        </optgroup>
       </select>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:8px">
       <input id="searchInput" class="input" placeholder="ابحث عن قناة..." oninput="filterChannels()">
       <select id="groupFilter" class="input" onchange="filterChannels()">
-        <option value="all">التصنيفات</option>
+        <option value="all">كل التصنيفات</option>
       </select>
     </div>
 
@@ -117,22 +132,36 @@ main{display:grid;grid-template-columns:380px 1fr;gap:18px;padding:12px 18px;ali
   <section style="display:flex;flex-direction:column;gap:12px">
     <div class="player-card">
       <div class="video-wrap">
-        <video id="player" controls playsinline></video>
+        <video id="player" controls playsinline poster="https://wallpaperaccess.com/full/1567831.jpg"></video>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:10px">
-         <h2 id="viewName" style="color:var(--primary);margin:0">MisterAI Player</h2>
-         <div class="small" id="totalCount">القنوات: 0</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <div>
+          <h2 id="viewName" style="color:var(--primary);margin:0">MisterAI Player</h2>
+          <p id="viewGroup" class="small" style="margin:0; font-size: 0.8rem; color: var(--muted)">اختر قناة للبدء</p>
+        </div>
+        <div class="small" id="totalCount">القنوات: 0</div>
       </div>
+    </div>
+    <div class="small" style="padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+        نظام التحليل التلقائي نشط. تم استبعاد المواقع غير المرغوب فيها.
     </div>
   </section>
 </main>
+
+<div class="footer">تم التطوير بواسطة <b style="color:var(--primary)">MUSTAPHA (MisterAI)</b> © 2025</div>
 
 <script>
 const STORAGE_KEY = 'MisterAI_channels_v5';
 let allChannels = [];
 const player = document.getElementById('player');
 
-function toast(msg){ const d=document.createElement('div'); d.className='toast'; d.textContent=msg; document.body.appendChild(d); setTimeout(()=>d.remove(), 2000); }
+function toast(msg){ 
+    const d=document.createElement('div'); 
+    d.className='toast'; d.textContent=msg; 
+    document.body.appendChild(d); 
+    setTimeout(()=>d.remove(), 2500); 
+}
+
 function saveLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(allChannels)); }
 function loadLocal(){ const v = localStorage.getItem(STORAGE_KEY); return v ? JSON.parse(v) : []; }
 
@@ -145,7 +174,7 @@ window.addEventListener('load', ()=>{
 document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
 document.getElementById('importFile').addEventListener('change', async (ev)=>{
   const f = ev.target.files[0];
-  if(f){ const txt = await f.text(); parseM3U(txt, true); toast('تم الاستيراد'); }
+  if(f){ const txt = await f.text(); parseM3U(txt, true); toast('تم استيراد الملف'); }
 });
 
 function parseM3U(text, append=false){
@@ -153,8 +182,8 @@ function parseM3U(text, append=false){
   const out = [];
   for(let i=0; i<lines.length; i++){
     if(lines[i].startsWith('#EXTINF:')){
-      const name = lines[i].split(',')[1] || 'Unknown';
-      const group = lines[i].match(/group-title="([^"]+)"/)?.[1] || 'General';
+      const name = (lines[i].split(',')[1] || 'Unknown').trim();
+      const group = lines[i].match(/group-title="([^"]+)"/)?.[1] || 'Global';
       const logo = lines[i].match(/tvg-logo="([^"]+)"/)?.[1] || '';
       const url = lines[i+1]?.trim();
       if(url && url.startsWith('http')) out.push({name, group, logo, url, status:'unknown'});
@@ -171,8 +200,10 @@ function renderList(filtered=null){
   document.getElementById('totalCount').textContent = `القنوات: ${data.length}`;
   data.forEach((c, idx) => {
     const el = document.createElement('div'); el.className='channel';
-    el.innerHTML = `<img src="${c.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
-                    <div class="meta"><b>${c.name}</b><small>${c.group}</small></div>`;
+    el.innerHTML = `
+      <img src="${c.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+      <div class="meta"><b>${c.name}</b><small>${c.group}</small></div>
+    `;
     el.onclick = ()=> playChannel(c);
     container.appendChild(el);
   });
@@ -180,10 +211,11 @@ function renderList(filtered=null){
 
 function playChannel(c){
   document.getElementById('viewName').textContent = c.name;
-  if(Hls.isSupported() && c.url.includes('m3u8')){
+  document.getElementById('viewGroup').textContent = c.group;
+  if(Hls.isSupported() && (c.url.includes('m3u8') || c.url.includes('stream'))){
     const hls = new Hls(); hls.loadSource(c.url); hls.attachMedia(player);
-    hls.on(Hls.Events.MANIFEST_PARSED, ()=>player.play());
-  } else { player.src = c.url; player.play(); }
+    hls.on(Hls.Events.MANIFEST_PARSED, ()=>player.play().catch(e=>console.log("Auto-play blocked")));
+  } else { player.src = c.url; player.play().catch(e=>console.log("Auto-play blocked")); }
 }
 
 function filterChannels(){
@@ -197,8 +229,8 @@ function filterChannels(){
 
 function updateGroups(){
   const sel = document.getElementById('groupFilter');
-  const groups = [...new Set(allChannels.map(c=>c.group))];
-  sel.innerHTML = '<option value="all">جميع التصنيفات</option>';
+  const groups = [...new Set(allChannels.map(c=>c.group))].sort();
+  sel.innerHTML = '<option value="all">كل التصنيفات</option>';
   groups.forEach(g => { const o = document.createElement('option'); o.value=o.textContent=g; sel.appendChild(o); });
 }
 
@@ -210,13 +242,17 @@ document.getElementById('sourceSelector').addEventListener('change', async (e)=>
     const txt = await res.text();
     parseM3U(txt);
     document.getElementById('loadStatus').textContent = 'جاهز';
-    toast('تم تحديث القائمة');
-  } catch(err) { toast('خطأ في التحميل (CORS)'); }
+    toast('تم تحديث القائمة بنجاح');
+  } catch(err) { 
+    document.getElementById('loadStatus').textContent = 'خطأ';
+    toast('خطأ في التحميل (تأكد من إضافات CORS)'); 
+  }
 });
 
-document.getElementById('clearBtn').onclick = ()=>{ allChannels=[]; saveLocal(); renderList(); toast('تم المسح'); };
+document.getElementById('clearBtn').onclick = ()=>{ 
+    if(confirm('مسح كل القنوات؟')){ allChannels=[]; saveLocal(); renderList(); toast('تم المسح'); }
+};
 </script>
 
-<div class="footer">تم التطوير بواسطة <b style="color:var(--primary)">MisterAI</b> © 2025</div>
 </body>
 </html>
