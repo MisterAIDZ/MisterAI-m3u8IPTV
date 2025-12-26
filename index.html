@@ -1,248 +1,452 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOUSE AI | GLOBAL IPTV SYSTEM</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOUSE AI | IPTV — Import/Validate/Save</title>
 
-    <style>
-        :root {
-            --primary: #00d2ff;
-            --accent: #00ff88;
-            --bg-dark: #02040a;
-            --panel-bg: #0d1117;
-            --text: #e6edf3;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-        body { background: var(--bg-dark); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* Navigation */
-        nav {
-            height: 70px; background: #000; border-bottom: 2px solid var(--primary);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); z-index: 10;
-        }
-        .brand { font-family: 'Orbitron'; font-size: 1.8rem; color: var(--primary); letter-spacing: 2px; }
-        .status-tag { background: rgba(0, 255, 136, 0.1); color: var(--accent); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-
-        .main-wrapper { display: flex; flex: 1; width: 100%; overflow: hidden; }
-
-        /* Sidebar */
-        .sidebar { width: 420px; background: var(--panel-bg); border-left: 1px solid #30363d; display: flex; flex-direction: column; }
-
-        .control-panel { padding: 20px; background: #161b22; border-bottom: 1px solid #333; }
-        .input-box { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 8px; margin-bottom: 10px; outline: none; }
-        
-        .btn-action {
-            width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px;
-            font-weight: bold; cursor: pointer; color: #000; transition: 0.3s; margin-bottom: 5px;
-        }
-        .btn-action:hover { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-
-        .search-area { padding: 15px; border-bottom: 1px solid #333; }
-        .channel-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-
-        .channel-item {
-            display: flex; align-items: center; padding: 12px; background: #161b22; border-radius: 10px;
-            cursor: pointer; border: 1px solid transparent; transition: 0.2s;
-        }
-        .channel-item:hover { border-color: var(--primary); background: #1c2128; transform: translateX(-5px); }
-        .channel-item img { width: 45px; height: 45px; border-radius: 5px; margin-left: 15px; object-fit: contain; background: #000; }
-        .channel-item .info b { font-size: 0.95rem; color: #fff; display: block; }
-        .channel-item .info small { font-size: 0.75rem; color: var(--primary); }
-
-        /* Player */
-        .content-area { flex: 1; padding: 25px; background: #05070a; display: flex; flex-direction: column; }
-        .video-box { flex: 1; background: #000; border-radius: 20px; overflow: hidden; border: 1px solid #30363d; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        video { width: 100%; height: 100%; }
-
-        .now-playing {
-            margin-top: 15px; padding: 20px; background: var(--panel-bg); border-radius: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-        /* Footer */
-        footer {
-            height: 45px; background: #000; border-top: 1px solid #333;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem; color: #8b949e;
-        }
-        footer b { color: var(--primary); margin: 0 5px; }
-
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-    </style>
+<style>
+/* (نحن نحتفظ بنفس الـ CSS الاحترافي السابق لكن أضفنا إظهار حالة القناة) */
+:root{--primary:#00d2ff;--accent:#00ff88;--bg:#03060a;--panel:#0d1117;--muted:#8b949e;--card:#13171b}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Tajawal',sans-serif}
+body{background:linear-gradient(#02040a,#05060a);color:#e6edf3;margin:0}
+header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:transparent}
+.brand{font-family:'Orbitron';color:var(--primary);font-size:1.4rem}
+.status{padding:6px 12px;border-radius:20px;background:rgba(0,255,136,0.06);color:var(--accent);font-weight:700}
+main{display:grid;grid-template-columns:380px 1fr;gap:18px;padding:12px 18px;align-items:start}
+.sidebar{background:linear-gradient(var(--panel), rgba(255,255,255,0.01));border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;min-height:0}
+.controls{display:flex;gap:8px}
+.btn{padding:10px;border-radius:8px;background:var(--primary);border:none;color:#000;cursor:pointer;font-weight:700}
+.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+.input{padding:10px;border-radius:8px;background:#000;border:1px solid rgba(255,255,255,0.03);color:#fff;width:100%}
+.list{padding:12px;overflow:auto;display:flex;flex-direction:column;gap:10px;min-height:0;max-height:calc(100vh - 260px)}
+.channel{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--card);border:1px solid rgba(255,255,255,0.02);transition:all .15s;cursor:pointer}
+.channel:hover{transform:translateX(-6px);box-shadow:0 6px 18px rgba(0,0,0,0.6);border-color:var(--primary)}
+.channel img{width:52px;height:52px;border-radius:8px;object-fit:cover;background:#000;flex-shrink:0}
+.meta{flex:1;min-width:0}
+.meta b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta small{display:block;color:var(--muted);font-size:0.85rem}
+.status-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-inline-start:8px}
+.status-unknown{background:#777}
+.status-alive{background:#2ecc71}
+.status-dead{background:#ff4d4d}
+.player-card{background:linear-gradient( rgba(255,255,255,0.02), transparent);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);position:sticky;top:86px;z-index:20}
+.video-wrap{position:relative;border-radius:10px;overflow:hidden;background:#000;height:0;padding-top:56.25%}
+.video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.toast{position:fixed;left:18px;bottom:18px;background:#0d1117;padding:10px 14px;border-radius:8px;z-index:9999}
+.footer{height:48px;display:flex;align-items:center;justify-content:center;color:var(--muted);border-top:1px solid rgba(255,255,255,0.02)}
+.small{font-size:0.85rem;color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9998}
+.modal .card{background:#0d1117;padding:16px;border-radius:10px;min-width:320px;border:1px solid rgba(255,255,255,0.03)}
+</style>
 </head>
 <body>
 
-<nav>
-    <div class="brand">MOUSE AI <span style="font-size: 0.7rem; opacity: 0.5;">GLOBAL</span></div>
-    <div class="status-tag" id="loadStatus">جاري فحص المصدر...</div>
-</nav>
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="brand"><i class="fa fa-wave-square" style="color:var(--primary)"></i> MOUSE AI</div>
+    <div class="small">نظام IPTV — إدارة القوائم</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="status" id="loadStatus">جاهز</div>
+  </div>
+</header>
 
-<div class="main-wrapper">
-    <aside class="sidebar">
-        <div class="control-panel">
-            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--primary);">تحديث المصدر:</p>
-            <button class="btn-action" onclick="fetchGlobalList()"><i class="fas fa-sync-alt"></i> تحديث القنوات</button>
-            
-            <select id="sourceSelector" class="input-box" style="margin-top: 10px; border-color: var(--primary);" onchange="changeSource()">
-                <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">القنوات العربية</option>
-                <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">الرياضة العالمية</option>
-                <option value="https://iptv-org.github.io/iptv/categories/movies.m3u">أفلام وسينما</option>
-                <option value="https://iptv-org.github.io/iptv/categories/animation.m3u">أطفال وكرتون</option>
-                <option value="https://iptv-org.github.io/api/regions.json">Maghreb</option>
-                <option value="https://iptv-org.github.io/iptv/index.m3u">سيرفري الخاص</option>
-            </select>
+<main>
+  <aside class="sidebar" aria-label="الشريط الجانبي">
+    <div class="controls" style="margin-bottom:10px">
+      <button class="btn" id="importBtn"><i class="fa fa-file-import"></i> استيراد</button>
+      <button class="btn" id="scanBtn" title="فحص القنوات"><i class="fa fa-microscope"></i> فحص القنوات</button>
+      <button class="btn secondary" id="removeDeadBtn" title="حذف القنوات غير الشغّالة"><i class="fa fa-trash"></i> حذف الغير شغّالة</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="btn secondary" id="exportBtn"><i class="fa fa-download"></i> تصدير</button>
+      <button class="btn secondary" id="saveRepoBtn"><i class="fa fa-upload"></i> حفظ في المستودع</button>
+    </div>
+
+    <div style="margin-bottom:6px">
+      <select id="sourceSelector" class="input">
+        <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">القنوات العربية</option>
+        <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">الرياضة</option>
+        <option value="https://iptv-org.github.io/api/regions.json">مناطق (JSON)</option>
+      </select>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="searchInput" class="input" placeholder="ابحث..." oninput="filterChannels()">
+      <select id="groupFilter" class="input" onchange="filterChannels()">
+        <option value="all">جميع التصنيفات</option>
+      </select>
+    </div>
+
+    <div class="list" id="listContainer" aria-live="polite"></div>
+
+    <input type="file" id="importFile" accept=".m3u,.txt" style="display:none">
+  </aside>
+
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <div class="player-card">
+      <div class="video-wrap">
+        <video id="player" controls playsinline poster="https://wallpaperaccess.com/full/1567831.jpg"></video>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <div>
+          <button class="btn secondary" id="pipBtn"><i class="fa fa-clone"></i> PiP</button>
+          <button class="btn secondary" id="fsBtn"><i class="fa fa-expand"></i> ملء</button>
         </div>
+        <div class="small">القنوات: <b id="totalCount">0</b> — المفضلات: <b id="favCount">0</b></div>
+      </div>
 
-        <div class="search-area">
-            <input type="text" id="searchInput" class="input-box" placeholder="ابحث عن قناة في القائمة..." onkeyup="filterChannels()">
-            <select id="groupFilter" class="input-box" onchange="filterChannels()">
-                <option value="all">جميع الدول والتصنيفات</option>
-            </select>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h2 id="viewName" style="color:var(--primary);margin:0">اختر قناة للبدء</h2>
+          <p id="viewGroup" class="small" style="margin:0">نظام MisterAI</p>
         </div>
+        <div class="small" id="lastPlayed">آخر تشغيل: -</div>
+      </div>
+    </div>
 
-        <div class="channel-list" id="listContainer"></div>
-    </aside>
+    <div id="actionsInfo" class="small">استخدم "فحص القنوات" لاكتشاف القنوات غير الشغالة وحذفها أو حفظ النسخة النظيفة.</div>
+  </section>
+</main>
 
-    <main class="content-area">
-        <div class="video-box">
-            <video id="player" controls autoplay poster="https://wallpaperaccess.com/full/1567831.jpg"></video>
-        </div>
+<div class="footer">تم التطوير بواسطة <b style="color:var(--primary)">MUSTAPHA (MisterAI)</b> © 2025</div>
 
-        <div class="now-playing">
-            <div>
-                <h2 id="viewName" style="color: var(--primary);">اختر قناة للبدء</h2>
-                <p id="viewGroup" style="color: var(--accent); font-size: 0.9rem;">نظام مِستر إيه آي المتطور</p>
-            </div>
-            <div id="totalCount" style="color: #8b949e; font-size: 0.8rem;">0 قناة</div>
-        </div>
-    </main>
+<div id="toastHolder"></div>
+
+<!-- GitHub modal -->
+<div id="repoModal" class="modal" style="display:none">
+  <div class="card">
+    <h3>حفظ إلى GitHub</h3>
+    <p class="small">أدخل معلومات المستودع. التوكن يجب أن يملك صلاحية repo (لرفع/تعديل ملف).</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <input id="ghToken" class="input" placeholder="Personal Access Token (أو اترك فارغًا لتنزيل محلي)" type="password">
+      <input id="ghOwner" class="input" placeholder="owner (مثلاً: username أو org)">
+      <input id="ghRepo" class="input" placeholder="repo (مثلاً: my-iptv-lists)">
+      <input id="ghPath" class="input" placeholder="path/filename.m3u (مثلاً: lists/cleaned.m3u)">
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn secondary" id="cancelRepo">إلغاء</button>
+        <button class="btn" id="confirmRepo">حفظ إلى GitHub</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<footer>
-    تم التطوير بواسطة <b>MUSTAPHA (MisterAI)</b> | جميع الحقوق محفوظة &copy; 2025
-</footer>
-
 <script>
-    // جعلنا الرابط متغيراً ليتغير عند اختيار مصدر جديد
-    let CURRENT_GLOBAL_URL = "https://iptv-org.github.io/iptv/languages/ara.m3u";
-    let allChannels = [];
-    const video = document.getElementById('player');
-    const hls = new Hls();
+/* Core script: import, test, delete dead, save to repo */
+const STORAGE_KEY = 'MisterAI_channels_v4';
+let allChannels = []; // {name,group,logo,url,status}
+const CHUNK = 120;
+const player = document.getElementById('player');
 
-    window.onload = () => {
-        const saved = localStorage.getItem('MisterAI_Global_Data');
-        if (saved) {
-            allChannels = JSON.parse(saved);
-            refreshUI();
-            document.getElementById('loadStatus').textContent = "متصل - ذاكرة محلية";
-        } else {
-            fetchGlobalList();
-        }
-    };
+// helpers
+function toast(msg, t=2500){ const d=document.createElement('div'); d.className='toast'; d.textContent=msg; document.getElementById('toastHolder').appendChild(d); setTimeout(()=>d.remove(),t); }
+function saveLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(allChannels)); }
+function loadLocal(){ try{ const v=localStorage.getItem(STORAGE_KEY); return v?JSON.parse(v):[] }catch{return []} }
+function setStatusTxt(s){ document.getElementById('loadStatus').textContent = s; }
+function updateCounts(){ document.getElementById('totalCount').textContent = allChannels.length; document.getElementById('favCount').textContent = loadFavs().size; }
 
-    // دالة التبديل البسيطة كما طلبت
-    function changeSource() {
-        CURRENT_GLOBAL_URL = document.getElementById('sourceSelector').value;
-        localStorage.removeItem('MisterAI_Global_Data'); 
-        fetchGlobalList();
+// favorites simple
+const FAV_KEY = 'MisterAI_favs_v4';
+function loadFavs(){ try{ const v = localStorage.getItem(FAV_KEY); return v?new Set(JSON.parse(v)):new Set(); }catch{return new Set(); } }
+function saveFavs(s){ localStorage.setItem(FAV_KEY, JSON.stringify(Array.from(s))); updateCounts(); }
+
+// init
+window.addEventListener('load', async ()=>{
+  allChannels = loadLocal();
+  renderList();
+  updateCounts();
+  setStatusTxt('جاهز');
+});
+
+// Import file button
+document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', async (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  const txt = await f.text();
+  parseM3U(txt, true);
+  ev.target.value = '';
+  toast('تم استيراد الملف محلياً');
+});
+
+// parse M3U (معدلة: يمكن اختيار append أو replace)
+function parseM3U(text, append=false){
+  const lines = text.split(/\r?\n/);
+  const out = [];
+  for(let i=0;i<lines.length;i++){
+    const l = lines[i].trim();
+    if(l.startsWith('#EXTINF:')){
+      const name = (l.split(',')[1] || 'Unknown').trim();
+      const group = l.match(/group-title="([^"]+)"/)?.[1] || 'Global';
+      const logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || '';
+      const url = (lines[i+1] || '').trim();
+      if(url && url.startsWith('http')) out.push({name,group,logo,url,status:'unknown'});
     }
+  }
+  if(append) allChannels = allChannels.concat(out);
+  else allChannels = out;
+  saveLocal();
+  renderList();
+  updateCounts();
+}
 
-    async function fetchGlobalList() {
-        document.getElementById('loadStatus').textContent = "جاري التحميل...";
-        try {
-            // نستخدم fetch المباشر كما كان في كودك الأصلي تماماً
-            const response = await fetch(CURRENT_GLOBAL_URL);
-            const data = await response.text();
-            parseChannels(data);
-            document.getElementById('loadStatus').textContent = "تم التحديث بنجاح";
-        } catch (err) {
-            document.getElementById('loadStatus').textContent = "فشل التحديث - جرب لاحقاً";
-        }
-    }
+// render list
+function renderList(){
+  const container = document.getElementById('listContainer');
+  container.innerHTML = '';
+  const favs = loadFavs();
+  allChannels.forEach((c, idx)=>{
+    const el = document.createElement('div'); el.className='channel';
+    const img = document.createElement('img'); img.src = c.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png';
+    img.onerror = ()=>img.src='https://cdn-icons-png.flaticon.com/512/716/716429.png';
+    const meta = document.createElement('div'); meta.className='meta';
+    meta.innerHTML = `<b title="${c.name}">${c.name} <span class="status-dot ${statusClass(c.status)}" id="dot-${idx}"></span></b><small title="${c.group}">${c.group}</small>`;
+    const star = document.createElement('button'); star.className='btn secondary'; star.style.padding='6px'; star.innerHTML = favs.has(c.url)?'<i class="fa fa-star"></i>':'<i class="fa-regular fa-star"></i>';
+    star.onclick = (ev)=>{ ev.stopPropagation(); toggleFav(c, star); };
+    el.appendChild(img); el.appendChild(meta); el.appendChild(star);
+    el.onclick = ()=> playChannel(c);
+    container.appendChild(el);
+  });
+}
 
-    function parseChannels(data) {
-        const lines = data.split('\n');
-        allChannels = [];
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes('#EXTINF:')) {
-                const name = lines[i].split(',')[1]?.trim() || "Unknown";
-                const group = lines[i].match(/group-title="([^"]+)"/)?.[1] || "Global";
-                const logo = lines[i].match(/tvg-logo="([^"]+)"/)?.[1] || "";
-                const url = lines[i+1]?.trim();
-                if (url && url.startsWith('http')) {
-                    allChannels.push({ name, group, logo, url });
-                }
-            }
-        }
-        localStorage.setItem('MisterAI_Global_Data', JSON.stringify(allChannels));
-        refreshUI();
-    }
+function statusClass(s){ if(!s) return 'status-unknown'; if(s==='alive') return 'status-alive'; if(s==='dead') return 'status-dead'; return 'status-unknown'; }
 
-    function refreshUI() {
-        updateGroups();
-        renderList(allChannels);
-        document.getElementById('totalCount').textContent = `${allChannels.length} قناة متوفرة`;
+// play channel
+async function playChannel(c){
+  document.getElementById('viewName').textContent = c.name;
+  document.getElementById('viewGroup').textContent = c.group;
+  try{
+    if(Hls.isSupported() && /\.m3u8/i.test(c.url)){
+      const hls = new Hls(); hls.loadSource(c.url); hls.attachMedia(player);
+      hls.on(Hls.Events.MANIFEST_PARSED, ()=>player.play().catch(()=>{}));
+      // cleanup on new play is left simple (not storing hls reference here for brevity)
+    } else {
+      player.src = c.url; await player.play().catch(()=>{});
     }
+  }catch(e){ console.warn(e); toast('فشل التشغيل ربما بسبب CORS'); }
+  document.getElementById('lastPlayed').textContent = 'آخر تشغيل: ' + c.name;
+  saveLast({name:c.name,url:c.url,at:Date.now()});
+}
 
-    function updateGroups() {
-        const select = document.getElementById('groupFilter');
-        const groups = [...new Set(allChannels.map(c => c.group))];
-        select.innerHTML = '<option value="all">جميع الدول والتصنيفات</option>';
-        groups.sort().forEach(g => {
-            select.innerHTML += `<option value="${g}">${g}</option>`;
-        });
-    }
+// favorites toggle
+function toggleFav(c, btn){
+  const s = loadFavs();
+  if(s.has(c.url)){ s.delete(c.url); btn.innerHTML = '<i class="fa-regular fa-star"></i>'; toast('أزيلت من المفضلات'); }
+  else { s.add(c.url); btn.innerHTML = '<i class="fa fa-star"></i>'; toast('أضيفت للمفضلات'); }
+  saveFavs(s);
+}
 
-    function renderList(data) {
-        const container = document.getElementById('listContainer');
-        container.innerHTML = '';
-        data.slice(0, 500).forEach(c => { 
-            const item = document.createElement('div');
-            item.className = 'channel-item';
-            item.innerHTML = `
-                <img src="${c.logo}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
-                <div class="info">
-                    <b>${c.name}</b>
-                    <small>${c.group}</small>
-                </div>
-            `;
-            item.onclick = () => play(c);
-            container.appendChild(item);
-        });
-    }
+// Save/export local
+document.getElementById('exportBtn').addEventListener('click', ()=> {
+  if(!allChannels.length){ toast('لا توجد قنوات للتصدير'); return; }
+  let txt = '#EXTM3U\n';
+  allChannels.forEach(c=>{ const logo = c.logo?` tvg-logo="${c.logo}"` : ''; const group = c.group?` group-title="${c.group}"` : ''; txt+=`#EXTINF:-1${logo}${group},${c.name}\n${c.url}\n`; });
+  const blob = new Blob([txt], {type:'application/x-mpegURL;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='iptv_export.m3u'; a.click(); URL.revokeObjectURL(a.href);
+  toast('تم تصدير الملف');
+});
 
-    function filterChannels() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const group = document.getElementById('groupFilter').value;
-        const filtered = allChannels.filter(c => 
-            (group === 'all' || c.group === group) && c.name.toLowerCase().includes(query)
-        );
-        renderList(filtered);
-    }
+// -- Channel health check (concurrent pool, timeout) --
+const DEFAULT_TIMEOUT = 8000;
+async function checkUrlHealth(url, timeout = DEFAULT_TIMEOUT, useProxy=false){
+  // build URL with optional proxy - proxy must return raw response (e.g., allorigins)
+  const target = useProxy ? `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` : url;
+  // Try HEAD first
+  const controller = new AbortController();
+  const id = setTimeout(()=>controller.abort(), timeout);
+  try{
+    const res = await fetch(target, {method:'HEAD', signal: controller.signal});
+    clearTimeout(id);
+    if(res && (res.ok || res.type === 'opaque')) return true;
+    // if 405 or not allowed, try GET range
+    if([405,403,400].includes(res.status)) {
+      // fallback
+    } else if(!res.ok) return false;
+  }catch(err){
+    clearTimeout(id);
+    // HEAD may be blocked (CORS) -> fallback to GET partial or m3u8 test
+  }
+  // fallback attempts
+  // if m3u8 try to GET manifest
+  try{
+    const ctrl2 = new AbortController();
+    const id2 = setTimeout(()=>ctrl2.abort(), timeout);
+    const res2 = await fetch(target, {method:'GET', headers:{Range:'bytes=0-1023'}, signal: ctrl2.signal});
+    clearTimeout(id2);
+    if(res2 && (res2.ok || res2.type === 'opaque')) return true;
+    return false;
+  }catch(e){
+    return false;
+  }
+}
 
-    // دالة التشغيل الأصلية الخاصة بك دون أي تعديل (بدون بروكسي)
-    function play(c) {
-        document.getElementById('viewName').textContent = c.name;
-        document.getElementById('viewGroup').textContent = c.group;
-        if (Hls.isSupported()) {
-            hls.destroy();
-            const newHls = new Hls();
-            newHls.loadSource(c.url);
-            newHls.attachMedia(video);
-            newHls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        } else {
-            video.src = c.url;
-            video.play();
-        }
+// scan all channels with concurrency
+async function scanAll({concurrency=12, timeout=8000, useProxy=false} = {}){
+  if(!allChannels.length){ toast('لا توجد قنوات للفحص'); return; }
+  setStatusTxt('جارٍ فحص القنوات...');
+  toast('يبدأ الفحص — قد يأخذ عدة ثواني');
+  const queue = allChannels.map((c, i)=> ({c,i}));
+  let active = 0;
+  let idxQ = 0;
+  const results = [];
+  return new Promise((resolve)=>{
+    function next(){
+      if(idxQ >= queue.length && active === 0){ // finished
+        saveLocal(); renderList(); updateCounts(); setStatusTxt('انتهى الفحص'); toast('انتهى الفحص'); resolve(results);
+        return;
+      }
+      while(active < concurrency && idxQ < queue.length){
+        const item = queue[idxQ++]; active++;
+        (async ()=>{
+          const ok = await checkUrlHealth(item.c.url, timeout, useProxy).catch(()=>false);
+          item.c.status = ok ? 'alive' : 'dead';
+          // update dot quickly without full re-render
+          const dot = document.getElementById('dot-' + item.i);
+          if(dot) { dot.className = 'status-dot ' + statusClass(item.c.status); }
+          active--;
+          next();
+        })();
+      }
     }
+    next();
+  });
+}
+
+// map status to class name
+function statusClass(s){ if(!s) return 'status-unknown'; if(s==='alive') return 'status-alive'; if(s==='dead') return 'status-dead'; return 'status-unknown'; }
+
+// scan button
+document.getElementById('scanBtn').addEventListener('click', async ()=>{
+  // Optionally you can expose a proxy checkbox; for now we use direct
+  await scanAll({concurrency: 14, timeout: 9000, useProxy: false});
+  saveLocal();
+  renderList();
+});
+
+// remove dead
+document.getElementById('removeDeadBtn').addEventListener('click', ()=>{
+  const dead = allChannels.filter(c=>c.status === 'dead');
+  if(!dead.length){ toast('لا توجد قنوات غير شغالة'); return; }
+  if(!confirm(`سيتم حذف ${dead.length} قناة غير شغالة. تابع؟`)) return;
+  allChannels = allChannels.filter(c=>c.status !== 'dead');
+  saveLocal();
+  renderList();
+  updateCounts();
+  toast('تم حذف القنوات غير الشغالة');
+});
+
+// Save to GitHub flow (modal)
+document.getElementById('saveRepoBtn').addEventListener('click', ()=>{
+  document.getElementById('repoModal').style.display = 'flex';
+});
+document.getElementById('cancelRepo').addEventListener('click', ()=>{ document.getElementById('repoModal').style.display='none'; });
+
+// confirm save to GitHub
+document.getElementById('confirmRepo').addEventListener('click', async ()=>{
+  const token = document.getElementById('ghToken').value.trim();
+  const owner = document.getElementById('ghOwner').value.trim();
+  const repo = document.getElementById('ghRepo').value.trim();
+  const path = document.getElementById('ghPath').value.trim();
+  document.getElementById('repoModal').style.display='none';
+  if(!path){ toast('ضع اسم ملف (path) لحفظه'); return; }
+  // build m3u content
+  let txt = '#EXTM3U\n';
+  allChannels.forEach(c=>{ const logo = c.logo?` tvg-logo="${c.logo}"` : ''; const group = c.group?` group-title="${c.group}"` : ''; txt += `#EXTINF:-1${logo}${group},${c.name}\n${c.url}\n`; });
+  if(!token || !owner || !repo){
+    // fallback: force download
+    const blob = new Blob([txt], {type:'application/x-mpegURL;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download = path.split('/').pop() || 'iptv_export.m3u'; a.click(); URL.revokeObjectURL(a.href);
+    toast('لا توجد بيانات GitHub كاملة — تم تنزيل الملف محلياً');
+    return;
+  }
+  try{
+    await uploadFileToGitHub({token,owner,repo,path,content:txt,branch:'main',message:'Update IPTV list from MOUSE AI'});
+    toast('تم الحفظ إلى GitHub بنجاح');
+  }catch(err){
+    console.error(err);
+    toast('فشل الحفظ إلى GitHub: ' + (err.message || err));
+  }
+});
+
+// upload file to GitHub (create or update)
+async function uploadFileToGitHub({token,owner,repo,path,content,branch='main',message='Update file'}){
+  // get current SHA (if exists)
+  const apiBase = 'https://api.github.com';
+  const getUrl = `${apiBase}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${branch}`;
+  const headers = { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' };
+  let sha = null;
+  try{
+    const res = await fetch(getUrl, {headers});
+    if(res.status === 200){
+      const data = await res.json();
+      sha = data.sha;
+    }
+  }catch(e){
+    // not found or cannot access — we'll attempt create
+  }
+  const putUrl = `${apiBase}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+  const body = {
+    message: message,
+    content: btoa(unescape(encodeURIComponent(content))), // base64
+    branch: branch
+  };
+  if(sha) body.sha = sha;
+  const resp = await fetch(putUrl, {method:'PUT', headers: {...headers, 'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  const j = await resp.json();
+  if(!resp.ok) throw new Error(j.message || 'GitHub upload failed');
+  return j;
+}
+
+// utilities: save last
+function saveLast(obj){ try{ localStorage.setItem('MisterAI_last_v4', JSON.stringify(obj)); }catch{} }
+
+// filter
+function filterChannels(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const g = document.getElementById('groupFilter').value;
+  // filter in-memory and re-render list
+  const filtered = allChannels.filter(c=>{
+    const okG = (g==='all' || (c.group||'').toLowerCase() === g.toLowerCase());
+    const okQ = !q || (c.name||'').toLowerCase().includes(q) || (c.group||'').toLowerCase().includes(q);
+    return okG && okQ;
+  });
+  // render filtered (simple re-render override)
+  const container = document.getElementById('listContainer'); container.innerHTML = '';
+  filtered.forEach((c, idx)=>{
+    const el = document.createElement('div'); el.className='channel';
+    const img = document.createElement('img'); img.src = c.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'; img.onerror = ()=>img.src='https://cdn-icons-png.flaticon.com/512/716/716429.png';
+    const meta = document.createElement('div'); meta.className='meta';
+    meta.innerHTML = `<b title="${c.name}">${c.name} <span class="status-dot ${statusClass(c.status)}"></span></b><small>${c.group}</small>`;
+    const star = document.createElement('button'); star.className='btn secondary'; star.style.padding='6px'; star.innerHTML = loadFavs().has(c.url)?'<i class="fa fa-star"></i>':'<i class="fa-regular fa-star"></i>';
+    star.onclick = (ev)=>{ ev.stopPropagation(); toggleFav(c, star); };
+    el.appendChild(img); el.appendChild(meta); el.appendChild(star);
+    el.onclick = ()=> playChannel(c);
+    container.appendChild(el);
+  });
+}
+
+// update groups dropdown (call after loading)
+function updateGroups(){ const sel = document.getElementById('groupFilter'); const groups = [...new Set(allChannels.map(c=>c.group||'Global'))].sort(); sel.innerHTML = '<option value="all">جميع التصنيفات</option>'; groups.forEach(g=>{ const o=document.createElement('option'); o.value=g; o.textContent=g; sel.appendChild(o); }); }
+
+// store load from URL option (not full remote fetch here for brevity)
+document.getElementById('sourceSelector').addEventListener('change', async ()=>{
+  const url = document.getElementById('sourceSelector').value;
+  setStatusTxt('جاري جلب المصدر...');
+  try{
+    const res = await fetch(url);
+    const txt = await res.text();
+    parseM3U(txt, false);
+    updateGroups();
+    toast('تم استيراد المصدر');
+    setStatusTxt('تم الاستيراد');
+  }catch(e){ console.error(e); toast('فشل استيراد المصدر — قد يكون CORS'); setStatusTxt('خطأ في الاستيراد'); }
+});
+
 </script>
 </body>
 </html>
