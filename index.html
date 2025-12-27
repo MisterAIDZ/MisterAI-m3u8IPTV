@@ -1,258 +1,2139 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MOUSE AI | IPTV — Regions & Local Save</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00d2ff">
+    <meta name="description" content="MOUSE AI IPTV - مشغل قنوات ذكي متعدد المنصات">
+    <title>MOUSE AI | IPTV Player</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        :root {
+            /* الألوان الأساسية */
+            --primary: #00d2ff;
+            --primary-dark: #00a8cc;
+            --accent: #00ff88;
+            --accent-dark: #00cc6a;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #2ed573;
+            
+            /* الألوان الظلامية */
+            --bg: #0a0e17;
+            --bg-light: #121826;
+            --panel: #1a1f2e;
+            --card: #222738;
+            --border: #2a3042;
+            
+            /* النصوص */
+            --text-primary: #ffffff;
+            --text-secondary: #a0a8c3;
+            --text-muted: #6c738c;
+            
+            /* الظلال */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            
+            /* الأنيميشن */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* الأحجام */
+            --header-height: 60px;
+            --footer-height: 50px;
+            --sidebar-width: 320px;
+            --player-height: 280px;
+        }
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+        /* Reset وعام */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-<style>
-:root{--primary:#00d2ff;--accent:#00ff88;--bg:#03060a;--panel:#0d1117;--muted:#8b949e;--card:#13171b}
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Tajawal',sans-serif}
-body{background:linear-gradient(#02040a,#05060a);color:#e6edf3;margin:0}
-header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:transparent}
-.brand{font-family:'Orbitron';color:var(--primary);font-size:1.4rem}
-.status{padding:6px 12px;border-radius:20px;background:rgba(0,255,136,0.06);color:var(--accent);font-weight:700}
-main{display:grid;grid-template-columns:380px 1fr;gap:18px;padding:12px 18px;align-items:start}
-.sidebar{background:linear-gradient(var(--panel), rgba(255,255,255,0.01));border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;min-height:0}
-.controls{display:flex;gap:8px}
-.btn{padding:10px;border-radius:8px;background:var(--primary);border:none;color:#000;cursor:pointer;font-weight:700}
-.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-.input{padding:10px;border-radius:8px;background:#000;border:1px solid rgba(255,255,255,0.03);color:#fff;width:100%}
-.list{padding:12px;overflow:auto;display:flex;flex-direction:column;gap:10px;min-height:0;max-height:calc(100vh - 320px)}
-.channel{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--card);border:1px solid rgba(255,255,255,0.02);transition:all .15s;cursor:pointer}
-.channel:hover{transform:translateX(-6px);box-shadow:0 6px 18px rgba(0,0,0,0.6);border-color:var(--primary)}
-.channel img{width:52px;height:52px;border-radius:8px;object-fit:cover;background:#000;flex-shrink:0}
-.meta{flex:1;min-width:0}
-.meta b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.meta small{display:block;color:var(--muted);font-size:0.85rem}
-.status-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-inline-start:8px}
-.status-unknown{background:#777}
-.status-alive{background:#2ecc71}
-.status-dead{background:#ff4d4d}
-.player-card{background:linear-gradient( rgba(255,255,255,0.02), transparent);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);position:sticky;top:86px;z-index:20}
-.video-wrap{position:relative;border-radius:10px;overflow:hidden;background:#000;height:0;padding-top:56.25%}
-.video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.toast{position:fixed;left:18px;bottom:18px;background:#0d1117;padding:10px 14px;border-radius:8px;z-index:9999}
-.footer{height:48px;display:flex;align-items:center;justify-content:center;color:var(--muted);border-top:1px solid rgba(255,255,255,0.02)}
-</style>
+        body {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            height: 100vh;
+            touch-action: pan-y;
+        }
+
+        /* تحسينات للأجهزة المختلفة */
+        @supports (-webkit-touch-callout: none) {
+            /* iOS خاص */
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+        }
+
+        /* الشاشات الكبيرة */
+        @media (min-width: 1200px) {
+            :root {
+                --sidebar-width: 380px;
+                --player-height: 320px;
+            }
+        }
+
+        /* الشاشات المتوسطة */
+        @media (max-width: 992px) {
+            :root {
+                --sidebar-width: 300px;
+                --player-height: 250px;
+            }
+        }
+
+        /* الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            :root {
+                --header-height: 55px;
+                --sidebar-width: 100%;
+                --player-height: 200px;
+            }
+            
+            body {
+                font-size: 15px;
+            }
+        }
+
+        /* الهواتف الصغيرة */
+        @media (max-width: 480px) {
+            :root {
+                --header-height: 50px;
+                --player-height: 180px;
+            }
+            
+            body {
+                font-size: 14px;
+            }
+        }
+
+        /* Header */
+        header {
+            height: var(--header-height);
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.8rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .logo-text {
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge i {
+            font-size: 0.8rem;
+        }
+
+        /* Main Layout */
+        .container {
+            display: flex;
+            height: calc(100vh - var(--header-height));
+            margin-top: var(--header-height);
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: var(--transition-normal);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                bottom: 0;
+                z-index: 999;
+                transform: translateX(-100%);
+                box-shadow: var(--shadow-lg);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff2e43;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #26c768;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition-fast);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.1);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper select {
+            appearance: none;
+            padding-right: 40px;
+        }
+
+        .select-wrapper::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .channels-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .channel-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .channel-card:hover {
+            background: var(--panel);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .channel-card.active {
+            background: rgba(0, 210, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .channel-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .channel-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .channel-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .channel-group {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .channel-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-alive { background: var(--success); }
+        .status-dead { background: var(--danger); }
+        .status-unknown { background: var(--warning); }
+
+        /* Player Section */
+        .player-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .player-container {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            min-height: var(--player-height);
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .video-wrapper::before {
+            content: '';
+            display: block;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+
+        #videoPlayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        .player-info {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70%;
+        }
+
+        .player-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .player-stats {
+            display: flex;
+            gap: 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: var(--transition-fast);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(0, 210, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(100%);
+            opacity: 0;
+            animation: slideIn 0.3s ease forwards;
+            max-width: 350px;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error .toast-icon { color: var(--danger); }
+        .toast.warning .toast-icon { color: var(--warning); }
+        .toast.info .toast-icon { color: var(--primary); }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: var(--transition-fast);
+        }
+
+        .toast-close:hover {
+            color: var(--text-primary);
+            background: var(--border);
+        }
+
+        /* Footer */
+        footer {
+            height: var(--footer-height);
+            background: var(--panel);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .developer {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--border);
+            margin-bottom: 20px;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Safe Area Insets */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: min(0px, env(safe-area-inset-left));
+                padding-right: min(0px, env(safe-area-inset-right));
+            }
+            
+            header {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+            }
+            
+            footer {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .mobile-menu-btn, footer, .btn {
+                display: none !important;
+            }
+            
+            .container {
+                margin-top: 0;
+                height: auto;
+            }
+            
+            .player-section {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<header>
-  <div style="display:flex;align-items:center;gap:12px">
-    <div class="brand"><i class="fa fa-wave-square" style="color:var(--primary)"></i> MOUSE AI</div>
-    <div class="small" style="font-size:0.85rem;color:var(--muted)">نظام IPTV الذكي — المطور MisterAI</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px">
-    <div class="status" id="loadStatus">جاهز</div>
-  </div>
-</header>
-
-<main>
-  <aside class="sidebar">
-    <div class="controls" style="margin-bottom:10px">
-      <button class="btn" id="importBtn"><i class="fa fa-file-import"></i> استيراد</button>
-      <button class="btn" id="scanBtn" title="فحص القنوات"><i class="fa fa-microscope"></i> فحص</button>
-      <button class="btn secondary" id="removeDeadBtn"><i class="fa fa-trash"></i> حذف الغير شغّالة</button>
-    </div>
-
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <button class="btn secondary" id="exportBtn"><i class="fa fa-download"></i> تصدير</button>
-      <button class="btn secondary" id="clearBtn"><i class="fa fa-eraser"></i> مسح</button>
-    </div>
-
-    <div style="margin-bottom:8px">
-      <select id="sourceSelector" class="input">
-        <option value="">-- اختر المنطقة أو الدولة --</option>
-        <optgroup label="القوائم الأساسية">
-            <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">🌍 القنوات العربية</option>
-            <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">⚽ الرياضة العالمية</option>
-            <option value="https://iptv-org.github.io/iptv/regions/maghreb.m3u">🇲🇦🇩🇿 المغرب العربي</option>
-            <option value="https://iptv-org.github.io/iptv/regions/afr.m3u">🌍 أفريقيا</option>
-        </optgroup>
+    <!-- Header -->
+    <header>
+        <button class="mobile-menu-btn" id="menuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
         
-        <optgroup label="أفريقيا وآسيا">
-            <option value="https://iptv-org.github.io/iptv/countries/dz.m3u">🇩🇿 الجزائر</option>
-            <option value="https://iptv-org.github.io/iptv/countries/eg.m3u">🇪🇬 مصر</option>
-            <option value="https://iptv-org.github.io/iptv/countries/ma.m3u">🇲🇦 المغرب</option>
-            <option value="https://iptv-org.github.io/iptv/countries/af.m3u">🇦🇫 أفغانستان</option>
-            <option value="https://iptv-org.github.io/iptv/countries/bh.m3u">🇧🇭 البحرين</option>
-            <option value="https://iptv-org.github.io/iptv/countries/iq.m3u">🇮🇶 العراق</option>
-            <option value="https://iptv-org.github.io/iptv/countries/jo.m3u">🇯🇴 الأردن</option>
-            <option value="https://iptv-org.github.io/iptv/countries/kw.m3u">🇰🇼 الكويت</option>
-            <option value="https://iptv-org.github.io/iptv/countries/lb.m3u">🇱🇧 لبنان</option>
-            <option value="https://iptv-org.github.io/iptv/countries/ps.m3u">🇵🇸 فلسطين</option>
-            <option value="https://iptv-org.github.io/iptv/countries/om.m3u">🇴🇲 عمان</option>
-            <option value="https://iptv-org.github.io/iptv/countries/sa.m3u">🇸🇦 السعودية</option>
-            <option value="https://iptv-org.github.io/iptv/countries/sy.m3u">🇸🇾 سوريا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/ae.m3u">🇦🇪 الإمارات</option>
-            <option value="https://iptv-org.github.io/iptv/countries/in.m3u">🇮🇳 الهند</option>
-            <option value="https://iptv-org.github.io/iptv/countries/id.m3u">🇮🇩 إندونيسيا</option>
-        </optgroup>
-
-        <optgroup label="الأرجنتين (أقاليم ومدن)">
-            <option value="https://iptv-org.github.io/iptv/countries/ar.m3u">🇦🇷 الأرجنتين (الكل)</option>
-            <option value="https://iptv-org.github.io/iptv/subdivisions/ar-b.m3u">Buenos Aires 🇦🇷</option>
-            <option value="https://iptv-org.github.io/iptv/cities/arbhi.m3u">Bahía Blanca 🇦🇷</option>
-            <option value="https://iptv-org.github.io/iptv/subdivisions/ar-x.m3u">Cordoba 🇦🇷</option>
-            <option value="https://iptv-org.github.io/iptv/subdivisions/ar-s.m3u">Santa Fe 🇦🇷</option>
-        </optgroup>
-
-        <optgroup label="أوروبا وأمريكا">
-            <option value="https://iptv-org.github.io/iptv/countries/al.m3u">🇦🇱 ألبانيا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/ad.m3u">🇦🇩 أندورا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/at.m3u">🇦🇹 النمسا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/be.m3u">🇧🇪 بلجيكا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/fr.m3u">🇫🇷 فرنسا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/de.m3u">🇩🇪 ألمانيا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/it.m3u">🇮🇹 إيطاليا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/es.m3u">🇪🇸 إسبانيا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/us.m3u">🇺🇸 أمريكا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/ca.m3u">🇨🇦 كندا</option>
-            <option value="https://iptv-org.github.io/iptv/countries/br.m3u">🇧🇷 البرازيل</option>
-        </optgroup>
-      </select>
-    </div>
-
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <input id="searchInput" class="input" placeholder="ابحث عن قناة..." oninput="filterChannels()">
-      <select id="groupFilter" class="input" onchange="filterChannels()">
-        <option value="all">كل التصنيفات</option>
-      </select>
-    </div>
-
-    <div class="list" id="listContainer"></div>
-    <input type="file" id="importFile" accept=".m3u,.txt" style="display:none">
-  </aside>
-
-  <section style="display:flex;flex-direction:column;gap:12px">
-    <div class="player-card">
-      <div class="video-wrap">
-        <video id="player" controls playsinline poster="https://wallpaperaccess.com/full/1567831.jpg"></video>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-        <div>
-          <h2 id="viewName" style="color:var(--primary);margin:0">MisterAI Player</h2>
-          <p id="viewGroup" class="small" style="margin:0; font-size: 0.8rem; color: var(--muted)">اختر قناة للبدء</p>
+        <div class="logo">
+            <i class="fas fa-wave-square logo-icon"></i>
+            <span class="logo-text">MOUSE AI</span>
         </div>
-        <div class="small" id="totalCount">القنوات: 0</div>
-      </div>
+        
+        <div class="status-badge" id="statusBadge">
+            <i class="fas fa-circle"></i>
+            <span>جاهز</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="controls-grid">
+                    <button class="btn btn-primary" id="importBtn">
+                        <i class="fas fa-file-import"></i>
+                        استيراد
+                    </button>
+                    <button class="btn btn-secondary" id="scanBtn">
+                        <i class="fas fa-microscope"></i>
+                        فحص
+                    </button>
+                    <button class="btn btn-danger" id="removeDeadBtn">
+                        <i class="fas fa-trash"></i>
+                        تنظيف
+                    </button>
+                    <button class="btn btn-success" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        تصدير
+                    </button>
+                </div>
+
+                <div class="input-group">
+                    <select class="input select-wrapper" id="sourceSelector">
+                        <option value="">-- اختر مصدر القنوات --</option>
+                        <optgroup label="القوائم العربية">
+                            <option value="https://iptv-org.github.io/iptv/languages/ara.m3u">🌍 جميع القنوات العربية</option>
+                            <option value="https://iptv-org.github.io/iptv/categories/sports.m3u">⚽ الرياضة العربية</option>
+                            <option value="https://iptv-org.github.io/iptv/regions/maghreb.m3u">🇲🇦🇩🇿 المغرب العربي</option>
+                        </optgroup>
+                        <optgroup label="الدول العربية">
+                            <option value="https://iptv-org.github.io/iptv/countries/eg.m3u">🇪🇬 مصر</option>
+                            <option value="https://iptv-org.github.io/iptv/countries/sa.m3u">🇸🇦 السعودية</option>
+                            <option value="https://iptv-org.github.io/iptv/countries/ae.m3u">🇦🇪 الإمارات</option>
+                            <option value="https://iptv-org.github.io/iptv/countries/ma.m3u">🇲🇦 المغرب</option>
+                            <option value="https://iptv-org.github.io/iptv/countries/dz.m3u">🇩🇿 الجزائر</option>
+                        </optgroup>
+                        <optgroup label="قوائم محلية">
+                            <option value="#local-channels">📁 القنوات المدمجة</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" class="input" id="searchInput" placeholder="🔍 ابحث عن قناة...">
+                </div>
+
+                <div class="input-group">
+                    <select class="input" id="groupFilter">
+                        <option value="all">جميع التصنيفات</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="channels-list" id="channelsList">
+                <!-- Channels will be loaded here -->
+                <div class="empty-state">
+                    <i class="fas fa-tv empty-icon"></i>
+                    <p>لا توجد قنوات مضافة</p>
+                    <p style="font-size: 0.9rem;">اختر مصدراً من القائمة أعلاه</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="player-section">
+            <div class="player-container">
+                <div class="video-wrapper">
+                    <video id="videoPlayer" controls playsinline preload="auto">
+                        المتصفح لا يدعم تشغيل الفيديو. جرب متصفحاً حديثاً.
+                    </video>
+                </div>
+
+                <div class="player-info">
+                    <div>
+                        <h2 class="player-title" id="playerTitle">MOUSE AI Player</h2>
+                        <p class="player-subtitle" id="playerSubtitle">اختر قناة للبدء</p>
+                    </div>
+                    <div class="player-stats">
+                        <span id="totalChannels">0 قناة</span>
+                        <span id="activeChannels">0 نشطة</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">إجمالي القنوات</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-value" id="statActive">0</div>
+                    <div class="stat-label">قنوات نشطة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="stat-value" id="statCountries">0</div>
+                    <div class="stat-label">دولة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stat-value" id="statCategories">0</div>
+                    <div class="stat-label">تصنيف</div>
+                </div>
+            </div>
+        </main>
     </div>
-    <div class="small" style="padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px;">
-        نظام التحليل التلقائي نشط. تم استبعاد المواقع غير المرغوب فيها.
-    </div>
-  </section>
-</main>
 
-<div class="footer">تم التطوير بواسطة <b style="color:var(--primary)">MUSTAPHA (MisterAI)</b> © 2025</div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
-<script>
-const STORAGE_KEY = 'MisterAI_channels_v5';
-let allChannels = [];
-const player = document.getElementById('player');
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <span>تم التطوير بواسطة</span>
+            <span class="developer">MUSTAPHA (MisterAI)</span>
+            <span>© 2025</span>
+            <span>|</span>
+            <span id="version">v2.0.0</span>
+        </div>
+    </footer>
 
-function toast(msg){ 
-    const d=document.createElement('div'); 
-    d.className='toast'; d.textContent=msg; 
-    document.body.appendChild(d); 
-    setTimeout(()=>d.remove(), 2500); 
-}
+    <!-- Hidden File Input -->
+    <input type="file" id="fileInput" accept=".m3u,.m3u8,.txt" style="display: none;">
 
-function saveLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(allChannels)); }
-function loadLocal(){ const v = localStorage.getItem(STORAGE_KEY); return v ? JSON.parse(v) : []; }
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => {
+                    console.log('Service Worker registration failed: ', err);
+                });
+            });
+        }
+    </script>
 
-window.addEventListener('load', ()=>{
-  allChannels = loadLocal();
-  renderList();
-  updateGroups();
-});
+    <!-- Main Application Script -->
+    <script>
+        // =================== التهيئة الأساسية ===================
+        const APP_VERSION = '2.0.0';
+        const STORAGE_KEY = 'mouse_ai_channels_v2';
+        const SETTINGS_KEY = 'mouse_ai_settings_v2';
+        
+        // عناصر DOM الرئيسية
+        const elements = {
+            sidebar: document.getElementById('sidebar'),
+            menuBtn: document.getElementById('menuBtn'),
+            statusBadge: document.getElementById('statusBadge'),
+            videoPlayer: document.getElementById('videoPlayer'),
+            channelsList: document.getElementById('channelsList'),
+            searchInput: document.getElementById('searchInput'),
+            groupFilter: document.getElementById('groupFilter'),
+            sourceSelector: document.getElementById('sourceSelector'),
+            importBtn: document.getElementById('importBtn'),
+            scanBtn: document.getElementById('scanBtn'),
+            removeDeadBtn: document.getElementById('removeDeadBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            fileInput: document.getElementById('fileInput'),
+            toastContainer: document.getElementById('toastContainer'),
+            playerTitle: document.getElementById('playerTitle'),
+            playerSubtitle: document.getElementById('playerSubtitle'),
+            totalChannels: document.getElementById('totalChannels'),
+            activeChannels: document.getElementById('activeChannels'),
+            statTotal: document.getElementById('statTotal'),
+            statActive: document.getElementById('statActive'),
+            statCountries: document.getElementById('statCountries'),
+            statCategories: document.getElementById('statCategories'),
+            version: document.getElementById('version')
+        };
 
-document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change', async (ev)=>{
-  const f = ev.target.files[0];
-  if(f){ const txt = await f.text(); parseM3U(txt, true); toast('تم استيراد الملف'); }
-});
+        // الحالة العالمية للتطبيق
+        const state = {
+            channels: [],
+            filteredChannels: [],
+            currentChannel: null,
+            hls: null,
+            settings: {
+                autoPlay: true,
+                quality: 'auto',
+                volume: 1.0,
+                theme: 'dark'
+            },
+            stats: {
+                total: 0,
+                active: 0,
+                countries: new Set(),
+                categories: new Set()
+            }
+        };
 
-function parseM3U(text, append=false){
-  const lines = text.split(/\r?\n/);
-  const out = [];
-  for(let i=0; i<lines.length; i++){
-    if(lines[i].startsWith('#EXTINF:')){
-      const name = (lines[i].split(',')[1] || 'Unknown').trim();
-      const group = lines[i].match(/group-title="([^"]+)"/)?.[1] || 'Global';
-      const logo = lines[i].match(/tvg-logo="([^"]+)"/)?.[1] || '';
-      const url = lines[i+1]?.trim();
-      if(url && url.startsWith('http')) out.push({name, group, logo, url, status:'unknown'});
-    }
-  }
-  allChannels = append ? allChannels.concat(out) : out;
-  saveLocal(); renderList(); updateGroups();
-}
+        // =================== قنوات مسبقة التحميل ===================
+        const PRELOADED_CHANNELS = `#EXTM3U
+#EXTINF:-1 tvg-id="2MMonde.ma@SD" tvg-logo="https://i.imgur.com/MvpntzA.png" group-title="General" user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0" referrer="http://www.radio2m.ma/",2M Monde SD
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0
+#EXTVLCOPT:http-referrer=http://www.radio2m.ma/
+https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8
+#EXTINF:-1 tvg-id="AbuDhabiEmirates.ae@SD" tvg-logo="https://i.imgur.com/iSbZqn4.png" group-title="General",Abu Dhabi Emirates SD
+https://vo-live-media.cdb.cdn.orange.com/Content/Channel/EmiratesChannel/HLS/index.m3u8
+#EXTINF:-1 tvg-id="AbuDhabiSports2.ae@SD" tvg-logo="https://i.imgur.com/y1I2jFK.png" group-title="Sports",Abu Dhabi Sports 2 SD
+http://213.57.91.138:8000/play/a058
+#EXTINF:-1 tvg-id="AbuDhabiTV.ae@SD" tvg-logo="https://i.imgur.com/8DAriPs.png" group-title="General",Abu Dhabi TV SD
+https://vo-live-media.cdb.cdn.orange.com/Content/Channel/AbuDhabiChannel/HLS/index.m3u8
+#EXTINF:-1 tvg-id="AghapyTV.eg@SD" tvg-logo="https://i.postimg.cc/xdCV2Bbr/aghapytv.png" group-title="Religious",Aghapy TV SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120686/aghapytv/playlist.m3u8
+#EXTINF:-1 tvg-id="AjmanTV.ae@SD" tvg-logo="https://i.imgur.com/hVNIwgE.png" group-title="General",Ajman TV SD
+https://cdn1.logichost.in/ajmantv/live/playlist.m3u8
+#EXTINF:-1 tvg-id="AjyalTV.ps@SD" tvg-logo="https://i.imgur.com/i6Y7beR.jpg" group-title="General",Ajyal TV SD
+http://htvajyal.mada.ps:8888/ajyal/index.m3u8
+#EXTINF:-1 tvg-id="AL24News.dz@SD" tvg-logo="https://i.imgur.com/vyVEXYL.png" group-title="News",AL24 News SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120682/al24news/playlist.m3u8
+#EXTINF:-1 tvg-id="AlAlamiya2.sd@SD" tvg-logo="https://i.imgur.com/5FrE3Nv.png" group-title="Education",Al Alamiya 2 SD
+http://82.212.74.98:8000/live/7815.m3u8
+#EXTINF:-1 tvg-id="AlAqsaTV.ps@SD" tvg-logo="https://i.imgur.com/Z2rfrQ8.png" group-title="General",Al-Aqsa TV SD
+http://167.172.161.13/hls/feedspare/6udfi7v8a3eof6nlps6e9ovfrs65c7l7.m3u8
+#EXTINF:-1 tvg-id="Alarabiya.ae@SD" tvg-logo="https://i.imgur.com/NXFkYFj.png" group-title="News",Alarabiya SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119196/alarabia/playlist.m3u8
+#EXTINF:-1 tvg-id="AlArabiyaBusiness.ae@SD" tvg-logo="https://i.postimg.cc/85MKQbwQ/alarabiyabusiness.png" group-title="Business",Al Arabiya Business SD
+https://live.alarabiya.net/alarabiapublish/aswaaq.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="AlArabiyaPrograms.ae@SD" tvg-logo="https://i.imgur.com/Hoc3cfO.png" group-title="Documentary;News",Al Arabiya Programs SD
+https://d1j4r34gq3qw9y.cloudfront.net/out/v1/96804f3a14864641a21c25e8ca9afb74/index.m3u8
+#EXTINF:-1 tvg-id="AlArabyTV2.qa@SD" tvg-logo="https://i.imgur.com/Gp5mNea.png" group-title="News",Al Araby TV 2 SD
+https://alaraby.cdn.octivid.com/alaraby2n/smil:alaraby2n.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="AlArabyTV.qa@SD" tvg-logo="https://i.imgur.com/YMqWEe4.png" group-title="News",Al Araby TV SD
+https://alaraby.cdn.octivid.com/alaraby/smil:alaraby.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="AlDafrahTV.ae@SD" tvg-logo="https://i.imgur.com/sOMOe9t.png" group-title="General",Al Dafrah TV SD
+https://cdn-eu-west-prod-ingest-infra-dacast-com.akamaized.net/23cf2e00-28b0-b7b4-2569-ab7d19233fd7/index.m3u8
+#EXTINF:-1 tvg-id="AlEkhbariya.sa@SD" tvg-logo="https://i.imgur.com/WcRlHQm.png" group-title="News",Al Ekhbariya SD
+https://shd-gcp-live.edgenextcdn.net/live/bitmovin-al-ekhbaria/297b3ef1cd0633ad9cfba7473a686a06/index.m3u8
+#EXTINF:-1 tvg-id="AlerthAlnabawiChannel.jo@SD" tvg-logo="https://i.imgur.com/iYibJxK.png" group-title="Religious",Alerth Alnabawi Channel SD
+http://82.212.74.2:8000/live/7307.m3u8
+#EXTINF:-1 tvg-id="AlfathSonnahTV.eg@SD" tvg-logo="https://i.imgur.com/7VYJStp.png" group-title="Religious",Alfath Sonnah TV SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120913/alfathsonnahtv/playlist.m3u8
+#EXTINF:-1 tvg-id="AlGhadTV.eg@SD" tvg-logo="https://i.imgur.com/ga6NXb9.png" group-title="News",Al Ghad TV SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119196/alghad/playlist.m3u8
+#EXTINF:-1 tvg-id="AlHadath.sa@SD" tvg-logo="https://i.imgur.com/De4SEWE.png" group-title="News",Al Hadath SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119196/alhadathegypt/playlist.m3u8
+#EXTINF:-1 tvg-id="AlhaqeqaAldawlia.jo@SD" tvg-logo="https://i.postimg.cc/DyZr1gsv/alhaqeqaaldawlia.png" group-title="News",Alhaqeqa Aldawlia SD
+https://ghaasiflu.online/alhqeqa/index.m3u8
+#EXTINF:-1 tvg-id="AlistiqamaTV.om@SD" tvg-logo="https://i.imgur.com/2FPtYZr.png" group-title="Religious",Alistiqama TV SD
+https://jmc-live.ercdn.net/alistiqama/alistiqama.m3u8
+#EXTINF:-1 tvg-id="AlJazeera.qa@English" tvg-logo="https://i.imgur.com/7bRVpnu.png" group-title="News",Al Jazeera English
+https://d1cy85syyhvqz5.cloudfront.net/v1/master/7b67fbda7ab859400a821e9aa0deda20ab7ca3d2/aljazeeraLive/AJE/index.m3u8
+#EXTINF:-1 tvg-id="AlJazeeraDocumentary.qa@HD" tvg-logo="https://i.imgur.com/5dNJlLo.png" group-title="Documentary",Al Jazeera Documentary HD
+http://213.57.91.138:8000/play/a06h
+#EXTINF:-1 tvg-id="AlJazeeraMubasher24.qa@SD" tvg-logo="https://i.imgur.com/LMCcIZ2.png" group-title="News",Al Jazeera Mubasher 24 SD
+https://live-hls-apps-ajm24-fa.getaj.net/AJM24/index.m3u8
+#EXTINF:-1 tvg-id="AlJazeeraMubasher.qa@SD" tvg-logo="https://i.imgur.com/X80DQvF.png" group-title="News",Al Jazeera Mubasher SD
+https://live-hls-apps-ajm-fa.getaj.net/AJM/index.m3u8
+#EXTINF:-1 tvg-id="AlJazeeraMubasherBroadcast2.qa@SD" tvg-logo="https://i.imgur.com/nJmi6G6.png" group-title="News",Al Jazeera Mubasher Broadcast 2 SD
+https://live-hls-apps-ajm2-fa.getaj.net/AJM2/index.m3u8
+#EXTINF:-1 tvg-id="AlkassFour.qa@HD" tvg-logo="https://i.imgur.com/iDL65Wu.png" group-title="Sports",Alkass Four HD
+https://streamer3.qna.org.qa/148164621_live/148164621_296.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="AlkassThree.qa@SD" tvg-logo="https://i.imgur.com/d57BdFh.png" group-title="Sports",Alkass Three SD
+https://streamer2.qna.org.qa/148161470_live/148161470_296.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="AlkassTwo.qa@SD" tvg-logo="https://i.imgur.com/8w61kFX.png" group-title="Sports",Alkass Two SD
+https://streamer3.qna.org.qa/148164528_live/148164528_296.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="AlMaarefTV.qa@SD" tvg-logo="https://i.imgur.com/QFnztgo.png" group-title="Religious",Al Maaref TV SD
+https://672a3a5c8e335.streamlock.net/AlMaaref/smil:almaareflive.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="AlMadina.ps@SD" tvg-logo="https://i.imgur.com/NVOeM3P.png" group-title="",Al Madina SD
+https://streaming.zaytonatube.com:8081/AlMadinatv/almadina21/index.m3u8
+#EXTINF:-1 tvg-id="AlMaghribia.ma@SD" tvg-logo="https://i.imgur.com/7GaahYh.png" group-title="General",Al Maghribia SD
+https://viamotionhsi.netplus.ch/live/eds/almaghribia/browser-dash/almaghribia.mpd
+#EXTINF:-1 tvg-id="AlMajdHolyQuran.sa@SD" tvg-logo="https://i.imgur.com/JBelAQj.png" group-title="Religious",Al-Majd Holy Quran SD
+https://edge66.magictvbox.com/liveApple/al_majd/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="AlMamlakaTV.jo@SD" tvg-logo="https://i.imgur.com/UeTseMV.png" group-title="News",Al Mamlaka TV SD
+https://bcovlive-a.akamaihd.net/4109c7ba30fd4a44ad9afe917c67a8c8/eu-central-1/6415809151001/playlist_dvr.m3u8
+#EXTINF:-1 tvg-id="AlMasarTV.ly@SD" tvg-logo="https://i.postimg.cc/zB2BNnf7/almasartv.png" group-title="News",Al Masar TV SD
+https://starmenajo.com/hls/almasar/index.m3u8
+#EXTINF:-1 tvg-id="AlMasirah.ye@SD" tvg-logo="https://i.imgur.com/V055t5e.png" group-title="News",Al Masirah SD
+https://live.cdnbridge.tv/Almasirah/Almasirah_all/playlist.m3u8
+#EXTINF:-1 tvg-id="AlMasirahMubacher.ye@SD" tvg-logo="https://i.imgur.com/0xHb3XM.jpg" group-title="News",Al Masirah Mubacher SD
+https://live2.cdnbridge.tv/AlmasirahMubasher/Mubasher_All/playlist.m3u8
+#EXTINF:-1 tvg-id="AlMasriyah.eg@SD" tvg-logo="https://i.ibb.co/Kx7wmXCQ/almasriya.png" group-title="General",Al Masriyah SD
+https://viamotionhsi.netplus.ch/live/eds/almasriyah/browser-HLS8/almasriyah.m3u8
+#EXTINF:-1 tvg-id="AlNahar.eg@SD" tvg-logo="https://i.ibb.co/WN6bh6mq/alnahar.png" group-title="General",Al-Nahar SD
+http://213.57.91.138:8000/play/a06m
+#EXTINF:-1 tvg-id="AlNajahNews.ps@SD" tvg-logo="https://i.imgur.com/c2bwn4G.png" group-title="News",Al Najah News SD
+https://streaming.najah.edu:8443/hls/AlNajah.m3u8
+#EXTINF:-1 tvg-id="AlQaheraNews.eg@SD" tvg-logo="https://i.postimg.cc/gj6YPQQc/alqaheranews.png" group-title="News",Al Qahera News SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119196/alqaheranews/playlist.m3u8
+#EXTINF:-1 tvg-id="AlQamarTV.ae@SD" tvg-logo="https://i.imgur.com/zkBT0C8.png" group-title="",Al Qamar TV SD
+https://streamer3.premio.link/alqamar/playlist.m3u8
+#EXTINF:-1 tvg-id="AlQuranAlKareemTV.sa@SD" tvg-logo="https://i.imgur.com/A2fJysM.png" group-title="Religious",Al Quran Al Kareem TV SD
+https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8
+#EXTINF:-1 tvg-id="AlRayyanOldTV.qa@SD" tvg-logo="https://i.imgur.com/4qB5iN0.png" group-title="General",Al Rayyan Old TV SD
+https://alrayyancdn.vidgyor.com/pub-nooldraybinbdh/liveabr/playlist_dvr.m3u8
+#EXTINF:-1 tvg-id="AlRayyanTV.qa@SD" tvg-logo="https://i.imgur.com/Ts3RjTV.png" group-title="General",Al Rayyan TV SD
+https://alrayyancdn.vidgyor.com/pub-noalrayy3pwz0l/liveabr/playlist_dvr.m3u8
+#EXTINF:-1 tvg-id="AlResalah.sa@SD" tvg-logo="https://i.imgur.com/7o4HgrP.png" group-title="Religious" referrer="https://rotana.net/",Al Resalah SD
+#EXTVLCOPT:http-referrer=https://rotana.net/
+https://rotana.hibridcdn.net/rotananet/risala_net-7Y83PP5adWixDF93/playlist.m3u8
+#EXTINF:-1 tvg-id="AlRiyadhRadio.sa@SD" tvg-logo="https://i.imgur.com/8PH1Lak.png" group-title="",Al Riyadh Radio SD
+https://live.kwikmotion.com/sbrksariyadhradiolive/srpksariyadhradio/playlist.m3u8
+#EXTINF:-1 tvg-id="AlSahatTV.ye@SD" tvg-logo="https://i.imgur.com/UVndAta.png" group-title="Religious",Al-Sahat TV SD
+https://assahat.b-cdn.net/Assahat/assahatobs/index.m3u8
+#EXTINF:-1 tvg-id="AlSaudiya.sa@SD" tvg-logo="https://i.imgur.com/GRQTndk.png" group-title="General",Al Saudiya SD
+http://trn03.bozztv.com/gin-sauditv/index.m3u8
+#EXTINF:-1 tvg-id="AlSaudiyaAlaan.sa@SD" tvg-logo="https://i.imgur.com/sEOjApe.png" group-title="",Al Saudiya Alaan SD
+https://shd-gcp-live.edgenextcdn.net/live/bitmovin-ksa-now/71ed3aa814c643306c0a8bc4fcc7d17f/index.m3u8
+#EXTINF:-1 tvg-id="AlSharqiyaMinKabla.ae@SD" tvg-logo="https://i.imgur.com/m4qheI4.png" group-title="General",Al Sharqiya Min Kabla SD
+https://svs.itworkscdn.net/kablatvlive/kabtv1.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="AlShoub.eg@SD" tvg-logo="https://alshoub.tv/wp-content/uploads/2023/09/logo@2x-1-1.png" group-title="General",AlShoub SD
+https://play.tactivemedia.com/memfs/c5919b97-5329-4b84-91b2-613c6ed9953e.m3u8
+#EXTINF:-1 tvg-id="AlSunnahAlNabawiyahTV.sa@SD" tvg-logo="https://i.imgur.com/S6LcTJv.png" group-title="Religious",Al Sunnah Al Nabawiyah TV SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120430/alsunnah/playlist.m3u8
+#EXTINF:-1 tvg-id="AltaghierTV.jo@SD" tvg-logo="https://i.postimg.cc/Nf6K92Cs/altaghiertv.png" group-title="News",Altaghier TV SD
+https://jmc-live.ercdn.net/altaghier/altaghier.m3u8
+#EXTINF:-1 tvg-id="Althania.sy@SD" tvg-logo="" group-title="General",Althania SD
+https://live.kwikmotion.com/syriatv02live/syriatv02.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="AlWoustaTV.ae@SD" tvg-logo="https://i.imgur.com/zgMqQPQ.png" group-title="General",Al Wousta TV SD
+https://svs.itworkscdn.net/alwoustalive/alwoustatv.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="AlYaumTV.ae@SD" tvg-logo="https://i.imgur.com/rBixF3P.png" group-title="News",Al Yaum TV SD
+https://iko-live.akamaized.net/AlyuamTV/master.m3u8
+#EXTINF:-1 tvg-id="AmmanTV.jo@SD" tvg-logo="https://i.imgur.com/5l7kw0b.png" group-title="General",Amman TV SD
+https://ammantv-live.ercdn.net/ammantvhd/ammantvhd.m3u8
+#EXTINF:-1 tvg-id="AmouYazidTV.dz@SD" tvg-logo="https://i.imgur.com/L8UPGPC.png" group-title="Kids",Amou Yazid TV SD
+http://mkstream.servehttp.com:1940/AmouYazid/ay1/playlist.m3u8
+#EXTINF:-1 tvg-id="AsharqDiscovery.sa@SD" tvg-logo="https://i.imgur.com/Czxi7yk.png" group-title="Documentary;Education",Asharq Discovery SD
+https://svs.itworkscdn.net/asharqdiscoverylive/asharqd.smil/playlist_dvr.m3u8
+#EXTINF:-1 tvg-id="AsharqDocumentary.sa@SD" tvg-logo="https://i.imgur.com/v6VsFEt.png" group-title="Documentary",Asharq Documentary SD
+https://svs.itworkscdn.net/asharqdocumentarylive/asharqdocumentary.smil/playlist_dvr.m3u8
+#EXTINF:-1 tvg-id="AsharqNews.sa@SD" tvg-logo="https://i.imgur.com/bqRC3sl.png" group-title="Business;News",Asharq News SD
+https://bcovlive-a.akamaihd.net/0b75ef0a49e24704a4ca023d3a82c2df/ap-south-1/6203311941001/playlist.m3u8
+#EXTINF:-1 tvg-id="AsharqNewsPortrait.sa@SD" tvg-logo="https://i.imgur.com/bqRC3sl.png" group-title="Business;News",Asharq News Portrait SD
+https://bcovlive-a.akamaihd.net/ed81ac1118414d4fa893d3a83ccec9be/eu-central-1/6203311941001/playlist.m3u8
+#EXTINF:-1 tvg-id="AsharqRadio.sa@SD" tvg-logo="https://i.imgur.com/M6K8cD3.jpeg" group-title="Business;News",Asharq Radio SD
+https://svs.itworkscdn.net/asharqradiovlive/asharqradiov/playlist.m3u8
+#EXTINF:-1 tvg-id="AtfalMawahebTV.sa@SD" tvg-logo="https://i.imgur.com/Y2BqP9m.png" group-title="Kids",Atfal & Mawaheb TV SD
+https://5aafcc5de91f1.streamlock.net/atfal1.com/atfal2/playlist.m3u8
+#EXTINF:-1 tvg-id="BahrainInternational.bh@SD" tvg-logo="https://i.postimg.cc/2y3PpWq4/bahraininternational.png" group-title="General",Bahrain International SD
+https://5c7b683162943.streamlock.net/live/ngrp:bahraininternational_all/playlist.m3u8
+#EXTINF:-1 tvg-id="BahrainQuran.bh@SD" tvg-logo="https://i.postimg.cc/J4fSgGRk/bahrainquran.png" group-title="Religious",Bahrain Quran SD
+https://5c7b683162943.streamlock.net/live/ngrp:bahrainquran_all/playlist.m3u8
+#EXTINF:-1 tvg-id="BahrainSports1.bh@SD" tvg-logo="https://i.imgur.com/fBpLsbC.png" group-title="Sports",Bahrain Sports 1 SD
+https://5c7b683162943.streamlock.net/live/ngrp:sportsone_all/playlist.m3u8
+#EXTINF:-1 tvg-id="BahrainSports2.bh@SD" tvg-logo="https://i.imgur.com/ZkuZmIo.png" group-title="Sports",Bahrain Sports 2 SD
+https://5c7b683162943.streamlock.net/live/ngrp:bahrainsportstwo_all/playlist.m3u8
+#EXTINF:-1 tvg-id="BahrainTV.bh@SD" tvg-logo="https://i.postimg.cc/rw57LMpY/bahraintv.png" group-title="General",Bahrain TV SD
+https://5c7b683162943.streamlock.net/live/ngrp:bahraintvmain_all/playlist.m3u8
+#EXTINF:-1 tvg-id="BelqeesTV.ye@SD" tvg-logo="https://i.postimg.cc/c4tLwgDg/belqeestv.png" group-title="News",Belqees TV SD
+http://213.57.91.138:8000/play/a068
+#EXTINF:-1 tvg-id="CBC.eg@SD" tvg-logo="https://i.imgur.com/8apNaLP.png" group-title="General",CBC SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120913/cbc/playlist.m3u8
+#EXTINF:-1 tvg-id="CBCDrama.eg@SD" tvg-logo="https://i.imgur.com/I8YdakH.png" group-title="Series",CBC Drama SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120913/cbcdrama/playlist.m3u8
+#EXTINF:-1 tvg-id="ChinaArabTV.ae@SD" tvg-logo="https://i.imgur.com/Wo488Y2.png" group-title="Culture;Documentary",China Arab TV SD
+http://213.57.91.138:8000/play/a061
+#EXTINF:-1 tvg-id="CNBCArabiya.ae@SD" tvg-logo="https://i.imgur.com/opBXx1K.png" group-title="Business",CNBC Arabiya SD
+https://cnbc-live.akamaized.net/cnbc/master.m3u8
+#EXTINF:-1 tvg-id="DiscoverPakistan.pk@SD" tvg-logo="https://i.imgur.com/IJH47fJ.png" group-title="Travel",Discover Pakistan SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119688/discoverpakistan/playlist.m3u8
+#EXTINF:-1 tvg-id="DubaiOne.ae@SD" tvg-logo="https://www.dmi.gov.ae/content/dam/corporate/dev/2023/elogos-ar/dubaione-logo.png" group-title="General",Dubai One SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119197/dubaione/playlist.m3u8
+#EXTINF:-1 tvg-id="DubaiRacing2.ae@SD" tvg-logo="https://i.imgur.com/H2TTn7t.png" group-title="Sports",Dubai Racing 2 SD
+https://dmithrvllta.cdn.mgmlcdn.com/dubairacing/smil:dubairacing.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="DubaiRacing3.ae@SD" tvg-logo="https://i.imgur.com/Vg4fxmc.png" group-title="Sports",Dubai Racing 3 SD
+https://dmithrvllta.cdn.mgmlcdn.com/dubaimubasher/smil:dubaimubasher.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="DubaiRacing.ae@SD" tvg-logo="https://i.imgur.com/CJ1dagP.png" group-title="Sports",Dubai Racing SD
+https://dmisdracta.cdn.mgmlcdn.com/events/smil:events.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="DubaiSports1.ae@SD" tvg-logo="https://i.imgur.com/Poxw8lG.png" group-title="Sports",Dubai Sports 1 SD
+https://dmidspta.cdn.mgmlcdn.com/dubaisports/smil:dubaisports.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="DubaiSports2.ae@SD" tvg-logo="https://i.postimg.cc/qRHqQ87Z/dubaisports2.png" group-title="Sports",Dubai Sports 2 SD
+https://dmitwlvvll.cdn.mgmlcdn.com/dubaisportshd/smil:dubaisportshd.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="DubaiSports3.ae@SD" tvg-logo="https://i.postimg.cc/hj8jYfz4/dubaisports3.png" group-title="Sports",Dubai Sports 3 SD
+https://dmitwlvvll.cdn.mgmlcdn.com/dubaisportshd5/smil:dubaisportshd5.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="DubaiTV.ae@SD" tvg-logo="https://i.imgur.com/UMmbyHv.png" group-title="General",Dubai TV SD
+https://dmieigthvllta.cdn.mgmlcdn.com/dubaitvht/smil:dubaitv.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="DubaiZaman.ae@SD" tvg-logo="https://www.dmi.gov.ae/content/dam/corporate/dev/2023/elogos-ar/dubaizaman.png" group-title="Classic",Dubai Zaman SD
+https://dmiffthftl.cdn.mangomolo.com/dubaizaman/smil:dubaizaman.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="ElFadjerTV.dz@SD" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/El_Fadjer_TV.png/512px-El_Fadjer_TV.png" group-title="General",El Fadjer TV SD
+https://stream.wsla.top/play/1.m3u8
+#EXTINF:-1 tvg-id="ElWatania1.tn@SD" tvg-logo="https://i.imgur.com/gNr2V14.png" group-title="General",El Watania 1 SD
+https://viamotionhsi.netplus.ch/live/eds/tunisienationale/browser-dash/tunisienationale.mpd
+#EXTINF:-1 tvg-id="FajerTV1.ps@SD" tvg-logo="https://i.imgur.com/1xERxmB.png" group-title="General",Fajer TV 1 SD
+http://platform.topuphost.com:8577/live/alfajr.stream/playlist.m3u8
+#EXTINF:-1 tvg-id="FajerTV2.ps@SD" tvg-logo="https://i.imgur.com/JkVtm2S.png" group-title="General",Fajer TV 2 SD
+http://platform.topuphost.com:8577/live/alfajr2.stream/playlist.m3u8
+#EXTINF:-1 tvg-id="FalastiniTV.ps@SD" tvg-logo="https://i.imgur.com/6B3Cims.png" group-title="Music",Falastini TV SD
+https://rp.tactivemedia.com/palestiniantv_source/live/playlist.m3u8
+#EXTINF:-1 tvg-id="FebruaryChannel.ly@SD" tvg-logo="https://i.imgur.com/WdMIpsA.png" group-title="News",February Channel SD
+https://b01c02nl.mediatriple.net/videoonlylive/mtfknklgwrlive/broadcast_5dc818c793576.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="FujairahTV.ae@SD" tvg-logo="https://i.postimg.cc/6TxTbnzQ/fujairahtv.png" group-title="Entertainment",Fujairah TV SD
+https://live.kwikmotion.com/fujairahlive/fujairah.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="HalaRamallah.ps@SD" tvg-logo="https://i.ibb.co/swP1FDK/halaramallah-logo.png" group-title="General",Hala Ramallah SD
+https://halaramallahtv.com:2053/HRamallah-Tv/HalaRamallah/playlist.m3u8
+#EXTINF:-1 tvg-id="HolyQuranRadioNablus.ps@SD" tvg-logo="https://quran-radio.com/assets/images/site/quran-radio-logo-h-rtl.png" group-title="Religious",Holy Quran Radio Nablus SD
+http://streaming.zaytonatube.com:8080/holyquran/holyquran/video.m3u8
+#EXTINF:-1 tvg-id="HudaTV.eg@SD" tvg-logo="https://i.imgur.com/1UUjU26.png" group-title="Religious",Huda TV SD
+https://cdn.bestream.io:19360/elfaro1/elfaro1.m3u8
+#EXTINF:-1 tvg-id="IqraaAfricaEurope.sa@SD" tvg-logo="https://i.imgur.com/nUlZvSe.png" group-title="Religious",Iqraa Africa & Europe SD
+https://playlist.fasttvcdn.com/pl/dlkqw1ftuvuuzkcb4pxdcg/Iqraafasttv1/playlist.m3u8
+#EXTINF:-1 tvg-id="IqraaArabic.sa@SD" tvg-logo="https://i.imgur.com/HPVsIa4.png" group-title="Religious",Iqraa Arabic SD
+https://playlist.fasttvcdn.com/pl/dlkqw1ftuvuuzkcb4pxdcg/Iqraafasttv3/playlist.m3u8
+#EXTINF:-1 tvg-id="IqraaQuran.sa@SD" tvg-logo="https://i.imgur.com/HPVsIa4.png" group-title="Religious",Iqraa Quran SD
+https://playlist.fasttvcdn.com/pl/dlkqw1ftuvuuzkcb4pxdcg/Iqraafasttv2/playlist.m3u8
+#EXTINF:-1 tvg-id="JawharaTV.tn@SD" tvg-logo="https://i.imgur.com/mRSQ5bP.png" group-title="Music",Jawhara TV SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120681/jawharafmtv/playlist.m3u8
+#EXTINF:-1 tvg-id="JordanArchive.jo@SD" tvg-logo="https://i.imgur.com/8UrCl4k.png" group-title="",Jordan Archive SD
+https://playlist.fasttvcdn.com/pl/cc0blorawy1ibohhrupraa/Archive/playlist.m3u8
+#EXTINF:-1 tvg-id="JordanComedy.jo@SD" tvg-logo="https://i.imgur.com/DuwwoO2.png" group-title="Comedy",Jordan Comedy SD
+https://playlist.fasttvcdn.com/pl/cc0blorawy1ibohhrupraa/Comedy/playlist.m3u8
+#EXTINF:-1 tvg-id="JordanSport2.jo@HD" tvg-logo="https://static.jrtv.gov.jo/resize-width/380/content/D/yH/2972/Poster.png" group-title="Sports",Jordan Sport 2 HD
+https://jrtv-live.ercdn.net/learning2/learning2.m3u8
+#EXTINF:-1 tvg-id="JordanSport.jo@SD" tvg-logo="https://i.imgur.com/2EmrZPQ.png" group-title="Sports",Jordan Sport SD
+https://jrtv-live.ercdn.net/jordansporthd/jordansporthd.m3u8
+#EXTINF:-1 tvg-id="JordanTourism.jo@SD" tvg-logo="https://i.imgur.com/gpeIoU9.png" group-title="",Jordan Tourism SD
+https://playlist.fasttvcdn.com/pl/cc0blorawy1ibohhrupraa/Tourism/playlist.m3u8
+#EXTINF:-1 tvg-id="JordanTV.jo@SD" tvg-logo="https://i.imgur.com/0XozB5N.png" group-title="General",Jordan TV SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119198/jordan/playlist.m3u8
+#EXTINF:-1 tvg-id="KaifaTV.jo@SD" tvg-logo="https://i.imgur.com/zGGeSQg.png" group-title="General",Kaifa TV SD
+http://82.212.74.2:8000/live/7311.m3u8
+#EXTINF:-1 tvg-id="KolalnasTV.ps@SD" tvg-logo="https://i.imgur.com/OyMxcRG.png" group-title="News",Kolalnas TV SD
+https://htvint.mada.ps/kolalnas/index.m3u8
+#EXTINF:-1 tvg-id="KTV1.kw@SD" tvg-logo="https://i.imgur.com/kG0d8Ay.png" group-title="General",KTV 1 SD
+https://kwtktv1ta.cdn.mangomolo.com/ktv1/smil:ktv1.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="KTV2.kw@SD" tvg-logo="https://i.imgur.com/hB57mNh.png" group-title="Culture;News",KTV 2 SD
+https://kwtktv2ta.cdn.mangomolo.com/ktv2/smil:ktv2.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="KTVAlQurain.kw@SD" tvg-logo="https://i.imgur.com/naVEZtj.png" group-title="Religious",KTV Al Qurain SD
+https://kwtktvaqta.cdn.mangomolo.com/ktvaq/smil:tktvaq.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="KTVArabe.kw@SD" tvg-logo="https://i.imgur.com/jg3VAxO.png" group-title="Culture",KTV Arabe SD
+https://kwtktvata.cdn.mangomolo.com/ktva/smil:tktva.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="KTVEthraa.kw@SD" tvg-logo="https://i.imgur.com/hqEbc49.png" group-title="Religious",KTV Ethraa SD
+https://kwtethta.cdn.mangomolo.com/eth/smil:eth.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="KTVNews.kw@SD" tvg-logo="https://i.imgur.com/erZ0Ol1.png" group-title="News",KTV News SD
+https://kwtkbta.cdn.mangomolo.com/kb/smil:kb.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="KTVSport.kw@SD" tvg-logo="https://i.imgur.com/R1hGX1d.png" group-title="Sports",KTV Sport SD
+https://kwtspta.cdn.mangomolo.com/sp/smil:sp.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="KTVSportPlus.kw@SD" tvg-logo="https://i.imgur.com/l4oX0gf.png" group-title="Sports",KTV Sport Plus SD
+https://kwtsplta.cdn.mangomolo.com/spl/smil:spl.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="LibyaAlWataniya.ly@SD" tvg-logo="https://i.imgur.com/KSUny9D.jpeg" group-title="General",Libya Al Wataniya SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120977/libyaalwataniya/playlist.m3u8
+#EXTINF:-1 tvg-id="MadaniChannelEnglish.pk@SD" tvg-logo="https://i.imgur.com/Abi9j0A.png" group-title="Religious",Madani Channel English SD
+https://streaming.madanichannel.tv/static/streaming-playlists/hls/c6a600b0-82cb-454a-8953-2bb2bb372edc/master.m3u8
+#EXTINF:-1 tvg-id="MadaniChannelUrdu.pk@SD" tvg-logo="https://i.imgur.com/MitLeCJ.png" group-title="Religious",Madani Channel Urdu SD
+https://streaming.madanichannel.tv/static/streaming-playlists/hls/b9790f10-cb0d-4e30-82bf-84a756234e58/master.m3u8
+#EXTINF:-1 tvg-id="Majid.ae@SD" tvg-logo="https://i.imgur.com/TzOKMMy.png" group-title="Kids",Majid SD
+https://vo-live-media.cdb.cdn.orange.com/Content/Channel/MajidChildrenChannel/HLS/index.m3u8
+#EXTINF:-1 tvg-id="MajidAlMohandis.sa@SD" tvg-logo="https://i.discogs.com/Fk9Bm8gTYJYeVXIJKX-EOGmYQ90sVQPtkIW5ZK4fydo/rs:fit/g:sm/q:90/h:372/w:412/czM6Ly9kaXNjb2dz/LWRhdGFiYXNل/LWRhdGFiYXNlLWlt/YWdlcy9MLTE2OTY4/MzMtMTU2ODk0NjI5/MC01Njk2LmpwZWc.jpeg" group-title="Music",Majid Al Mohandis SD
+https://shls-live-mood-ak.akamaized.net/out/v1/8e2419c6c7494dbba478be025af490ee/index.m3u8
+#EXTINF:-1 tvg-id="MakkahTV.sa@SD" tvg-logo="https://i.postimg.cc/GtN8v94c/makkahtv.png" group-title="Religious",Makkah TV SD
+https://media2.streambrothers.com:1936/8122/8122/playlist.m3u8
+#EXTINF:-1 tvg-id="MBC1.ae@SD" tvg-logo="https://i.imgur.com/CiA3plN.png" group-title="General",MBC 1 SD
+https://mbc1-enc.edgenextcdn.net/out/v1/0965e4d7deae49179172426cbfb3bc5e/index.m3u8
+#EXTINF:-1 tvg-id="MBC1Egypt.eg@HD" tvg-logo="https://i.imgur.com/CiA3plN.png" group-title="General",MBC 1 Egypt HD
+https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-1-na/eec141533c90dd34722c503a296dd0d8/index.m3u8
+#EXTINF:-1 tvg-id="MBCMasr2.eg@SD" tvg-logo="https://i.imgur.com/KHo7Gtn.png" group-title="General",MBC Masr 2 SD
+https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-masr-2/754931856515075b0aabf0e583495c68/index.m3u8
+#EXTINF:-1 tvg-id="MBCMasr.eg@SD" tvg-logo="https://i.imgur.com/o2elx0u.png" group-title="General",MBC Masr SD
+https://mbc1-enc.edgenextcdn.net/out/v1/d5036cabf11e45bf9d0db410ca135c18/index.m3u8
+#EXTINF:-1 tvg-id="Medi1TVAfrique.ma@SD" tvg-logo="https://i.imgur.com/a20DHnj.png" group-title="News",Medi1TV Afrique SD
+https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-afrique_tm7tu45/playlist.m3u8
+#EXTINF:-1 tvg-id="Medi1TVArabic.ma@SD" tvg-logo="https://i.imgur.com/3YsZPY6.jpeg" group-title="News",Medi1TV Arabic SD
+https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-arabic_g90v4ec/playlist.m3u8
+#EXTINF:-1 tvg-id="Medi1TVMaghreb.ma@SD" tvg-logo="https://i.imgur.com/F5OFQsp.jpeg" group-title="News",Medi1TV Maghreb SD
+https://cdn.live.easybroadcast.io/abr_corp/83_medi1tv-maghreb_jnbspmg/playlist.m3u8
+#EXTINF:-1 tvg-id="MohammedAbdo.sa@SD" tvg-logo="https://assets.mbcmood.com/channels/1720184012Mohammed%20Abdo%20banner.png" group-title="Music",Mohammed Abdo SD
+https://d2ow8h651gs7dx.cloudfront.net/out/v1/371fb663da604e659a2fb99bf89d92d4/index.m3u8
+#EXTINF:-1 tvg-id="NationalGeographicAbuDhabi.ae@HD" tvg-logo="https://i.imgur.com/fNA00VF.png" group-title="Documentary",National Geographic Abu Dhabi HD
+http://213.57.91.138:8000/play/a05a
+#EXTINF:-1 tvg-id="NessmaElJadida.tn@SD" tvg-logo="https://i.imgur.com/66CJtdz.png" group-title="General",Nessma El Jadida SD
+https://fl1002.bozztv.com/ga-nessmatv/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="OmanSportsTV.om@SD" tvg-logo="https://i.imgur.com/1omi7p8.png" group-title="Sports",Oman Sports TV SD
+https://partneta.cdn.mgmlcdn.com/omsport/smil:omsport.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="OmanTV.om@SD" tvg-logo="https://i.imgur.com/rBftT9x.png" group-title="General",Oman TV SD
+http://trn03.bozztv.com/gin-omantv/index.m3u8
+#EXTINF:-1 tvg-id="OmanTVCultural.om@SD" tvg-logo="https://i.imgur.com/b38wNPK.png" group-title="Culture",Oman TV Cultural SD
+https://partwota.cdn.mgmlcdn.com/omcultural/smil:omcultural.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="OmanTVMubashir.om@SD" tvg-logo="https://i.postimg.cc/VkqCSqcg/omantvmubashir.png" group-title="News",Oman TV Mubashir SD
+https://partwota.cdn.mgmlcdn.com/omlive/smil:omlive.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="OnE.eg@SD" tvg-logo="https://i.imgur.com/EPln9yU.png" group-title="News",On E SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120977/onehd/playlist.m3u8
+#EXTINF:-1 tvg-id="PalestineEdu.ps@SD" tvg-logo="https://i.imgur.com/AwVHXyC.png" group-title="Education",Palestine Edu SD
+https://pbc.furrera.ps/PalestineEDU/index.m3u8
+#EXTINF:-1 tvg-id="PalestineMubasher.ps@SD" tvg-logo="https://i.imgur.com/68llVTZ.png" group-title="General" user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36",Palestine Mubasher SD
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36
+https://pbc.furrera.ps/palestinelivehd/index.m3u8
+#EXTINF:-1 tvg-id="PalestineSatelliteChannel.ps@SD" tvg-logo="https://i.imgur.com/4B5FvmX.png" group-title="General" user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36",Palestine Satellite Channel SD
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36
+https://pbc.furrera.ps/palestinehd/index.m3u8
+#EXTINF:-1 tvg-id="PalestineToday.ps@SD" tvg-logo="https://i.imgur.com/BS8XXug.png" group-title="News",Palestine Today SD
+https://live.paltodaytv.com/paltv/live/playlist.m3u8
+#EXTINF:-1 tvg-id="QatarTelevision2.qa@SD" tvg-logo="https://i.imgur.com/iWJxDUm.png" group-title="General",Qatar Television 2 SD
+https://live.kwikmotion.com/qtv2live/qtv2.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="QatarTelevision.qa@SD" tvg-logo="https://i.imgur.com/N5RB4sp.png" group-title="General",Qatar Television SD
+https://live.kwikmotion.com/qtv1live/qtv1.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="QuranRadio.sa@SD" tvg-logo="https://i.imgur.com/ut0kr4x.png" group-title="",Quran Radio SD
+https://live.kwikmotion.com/sbrksaquranradiolive/srpksaquranradio/playlist.m3u8
+#EXTINF:-1 tvg-id="RashidAlMajed.sa@SD" tvg-logo="https://assets.mbcmood.com/channels/1720177618Rashid%20AlMajed.webp" group-title="Music",Rashid AlMajed SD
+https://dphwv2ufgnfsq.cloudfront.net/out/v1/59cd80dfe93a479eb8b4d79bc6f225ca/index.m3u8
+#EXTINF:-1 tvg-id="RoyaComedy.jo@SD" tvg-logo="https://i.imgur.com/oIThcM8.png" group-title="Comedy",Roya Comedy SD
+https://playlist.fasttvcdn.com/pl/toa2uuhhygheuly7xtuqrg/roya-comedy/playlist.m3u8
+#EXTINF:-1 tvg-id="SamaDubai.ae@SD" tvg-logo="https://i.imgur.com/F5g3ymW.png" group-title="General",Sama Dubai SD
+https://dmieigthvllta.cdn.mgmlcdn.com/samadubaiht/smil:samadubai.stream.smil/chunklist.m3u8
+#EXTINF:-1 tvg-id="SaudiThaqafiyaTV.sa@SD" tvg-logo="https://shahid.mbc.net/mediaObject/55f69983-5b4b-47c7-9c25-06ed5ad860a4?height=auto&width=512&croppingPoint=&version=1&type=jpeg" group-title="Culture",Saudi Thaqafiya TV SD
+https://shd-gcp-live.edgenextcdn.net/live/bitmovin-thaqafeyyah/28c0d2a20dbf1dc049ce15d3973f494b/index.m3u8
+#EXTINF:-1 tvg-id="Sharjah2.ae@SD" tvg-logo="https://i.imgur.com/Wd3Xvd1.png" group-title="Religious",Sharjah 2 SD
+https://svs.itworkscdn.net/smc2live/smc2tv.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="SharjahSports.ae@SD" tvg-logo="https://i.imgur.com/CsEElsJ.png" group-title="Sports",Sharjah Sports SD
+https://svs.itworkscdn.net/smc4sportslive/smc4.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="SharjahTV.ae@SD" tvg-logo="https://i.imgur.com/Oz2bPOt.png" group-title="Religious",Sharjah TV SD
+https://live.kwikmotion.com/smc1live/smc1tv.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="SkyNewsArabia.ae@SD" tvg-logo="https://i.imgur.com/SvjU4h6.png" group-title="News",Sky News Arabia SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119687/skynewsarabic/playlist.m3u8
+#EXTINF:-1 tvg-id="SkyNewsArabiaVertical.ae@SD" tvg-logo="https://i.imgur.com/FjtzQQs.png" group-title="News",Sky News Arabia Vertical SD
+https://stream.skynewsarabia.com/vertical/vertical.m3u8
+#EXTINF:-1 tvg-id="SpacetoonArabic.ae@SD" tvg-logo="https://upload.wikimedia.org/wikipedia/en/2/2b/Spacetoon_logo.png" group-title="Animation;Kids",Spacetoon Arabic SD
+https://shd-gcp-live.edgenextcdn.net/live/bitmovin-spacetoon/d8382fb9ab4b2307058f12c7ea90db54/index.m3u8
+#EXTINF:-1 tvg-id="SudanTV.sd@SD" tvg-logo="https://i.imgur.com/XUPAYAA.png" group-title="",Sudan TV SD
+https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119051/sudantv/playlist.m3u8
+#EXTINF:-1 tvg-id="SyriaTV.sy@SD" tvg-logo="https://i.postimg.cc/5thv6b7c/syriatv.png" group-title="News",Syria TV SD
+https://live.kwikmotion.com/syriatvlive/syriatv.smil/playlist_dvr.m3u8
+#EXTINF:-1 tvg-id="TV2.dz@SD" tvg-logo="https://i.imgur.com/VEb631f.png" group-title="General",TV2 SD
+https://viamotionhsi.netplus.ch/live/eds/canalalgerie/browser-dash/canalalgerie.mpd
+#EXTINF:-1 tvg-id="TV4.dz@SD" tvg-logo="https://i.imgur.com/BZvdjBN.png" group-title="General",TV4 SD
+http://149.62.177.98:8000/play/a01t/index.m3u8
+#EXTINF:-1 tvg-id="WatanTV.eg@SD" tvg-logo="https://i.postimg.cc/5y57gQw5/watantv.png" group-title="General",Watan TV SD
+https://rp.tactivemedia.com/watantv_source/live/playlist.m3u8
+#EXTINF:-1 tvg-id="YemenShababChannel.ye@SD" tvg-logo="https://i.imgur.com/H5Oi2NS.png" group-title="Culture",Yemen Shabab Channel SD
+https://starmenajo.com/hls/yemenshabab/index.m3u8
+#EXTINF:-1 tvg-id="YemenTodayTV.ye@SD" tvg-logo="https://i.imgur.com/8TzcJu5.png" group-title="",Yemen Today TV SD
+https://video.yementdy.tv/hls/yementoday.m3u8`;
 
-function renderList(filtered=null){
-  const container = document.getElementById('listContainer');
-  container.innerHTML = '';
-  const data = filtered || allChannels;
-  document.getElementById('totalCount').textContent = `القنوات: ${data.length}`;
-  data.forEach((c, idx) => {
-    const el = document.createElement('div'); el.className='channel';
-    el.innerHTML = `
-      <img src="${c.logo || 'https://cdn-icons-png.flaticon.com/512/716/716429.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
-      <div class="meta"><b>${c.name}</b><small>${c.group}</small></div>
-    `;
-    el.onclick = ()=> playChannel(c);
-    container.appendChild(el);
-  });
-}
+        // =================== وظائف المساعدة ===================
+        class Utils {
+            // تخزين محلي
+            static saveToStorage(key, data) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    return true;
+                } catch (e) {
+                    console.error('خطأ في التخزين:', e);
+                    return false;
+                }
+            }
 
-function playChannel(c){
-  document.getElementById('viewName').textContent = c.name;
-  document.getElementById('viewGroup').textContent = c.group;
-  if(Hls.isSupported() && (c.url.includes('m3u8') || c.url.includes('stream'))){
-    const hls = new Hls(); hls.loadSource(c.url); hls.attachMedia(player);
-    hls.on(Hls.Events.MANIFEST_PARSED, ()=>player.play().catch(e=>console.log("Auto-play blocked")));
-  } else { player.src = c.url; player.play().catch(e=>console.log("Auto-play blocked")); }
-}
+            static loadFromStorage(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : null;
+                } catch (e) {
+                    console.error('خطأ في التحميل:', e);
+                    return null;
+                }
+            }
 
-function filterChannels(){
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const g = document.getElementById('groupFilter').value;
-  const filtered = allChannels.filter(c => 
-    (g === 'all' || c.group === g) && (c.name.toLowerCase().includes(q))
-  );
-  renderList(filtered);
-}
+            // تحليل ملف M3U
+            static parseM3U(text) {
+                const channels = [];
+                const lines = text.split(/\r?\n/);
+                let currentChannel = null;
 
-function updateGroups(){
-  const sel = document.getElementById('groupFilter');
-  const groups = [...new Set(allChannels.map(c=>c.group))].sort();
-  sel.innerHTML = '<option value="all">كل التصنيفات</option>';
-  groups.forEach(g => { const o = document.createElement('option'); o.value=o.textContent=g; sel.appendChild(o); });
-}
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    if (line.startsWith('#EXTINF:')) {
+                        currentChannel = {
+                            name: line.split(',').slice(1).join(',').trim() || 'قناة بدون اسم',
+                            logo: line.match(/tvg-logo="([^"]+)"/)?.[1] || 'https://cdn-icons-png.flaticon.com/512/716/716429.png',
+                            group: line.match(/group-title="([^"]+)"/)?.[1] || 'عام',
+                            status: 'unknown',
+                            id: Date.now() + i
+                        };
+                    } else if (currentChannel && line && !line.startsWith('#') && line.startsWith('http')) {
+                        currentChannel.url = line;
+                        channels.push(currentChannel);
+                        currentChannel = null;
+                    }
+                }
 
-document.getElementById('sourceSelector').addEventListener('change', async (e)=>{
-  if(!e.target.value) return;
-  document.getElementById('loadStatus').textContent = 'جاري التحميل...';
-  try {
-    const res = await fetch(e.target.value);
-    const txt = await res.text();
-    parseM3U(txt);
-    document.getElementById('loadStatus').textContent = 'جاهز';
-    toast('تم تحديث القائمة بنجاح');
-  } catch(err) { 
-    document.getElementById('loadStatus').textContent = 'خطأ';
-    toast('خطأ في التحميل (تأكد من إضافات CORS)'); 
-  }
-});
+                return channels;
+            }
 
-document.getElementById('clearBtn').onclick = ()=>{ 
-    if(confirm('مسح كل القنوات؟')){ allChannels=[]; saveLocal(); renderList(); toast('تم المسح'); }
-};
-</script>
+            // عرض رسالة تنبيه
+            static showToast(message, type = 'info', duration = 3000) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const icons = {
+                    success: 'fa-check-circle',
+                    error: 'fa-exclamation-circle',
+                    warning: 'fa-exclamation-triangle',
+                    info: 'fa-info-circle'
+                };
 
+                toast.innerHTML = `
+                    <i class="fas ${icons[type]} toast-icon"></i>
+                    <div class="toast-content">
+                        <div class="toast-title">${type === 'success' ? 'نجاح' : type === 'error' ? 'خطأ' : type === 'warning' ? 'تحذير' : 'معلومة'}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                const closeBtn = toast.querySelector('.toast-close');
+                closeBtn.addEventListener('click', () => toast.remove());
+
+                elements.toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, duration);
+
+                return toast;
+            }
+
+            // التحقق من اتصال القناة
+            static async checkChannelStatus(url) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                    const response = await fetch(url, {
+                        method: 'HEAD',
+                        mode: 'no-cors',
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+                    return 'alive';
+                } catch (error) {
+                    return 'dead';
+                }
+            }
+
+            // تصدير القنوات إلى ملف M3U
+            static exportToM3U(channels) {
+                let m3uContent = '#EXTM3U\n';
+                
+                channels.forEach(channel => {
+                    m3uContent += `#EXTINF:-1 tvg-id="${channel.id}" tvg-logo="${channel.logo}" group-title="${channel.group}",${channel.name}\n`;
+                    m3uContent += `${channel.url}\n`;
+                });
+
+                return m3uContent;
+            }
+
+            // تنزيل ملف
+            static downloadFile(content, filename, type = 'text/plain') {
+                const blob = new Blob([content], { type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // =================== إدارة القنوات ===================
+        class ChannelManager {
+            constructor() {
+                this.channels = [];
+                this.loadChannels();
+            }
+
+            loadChannels() {
+                const saved = Utils.loadFromStorage(STORAGE_KEY);
+                this.channels = saved || [];
+                
+                if (this.channels.length === 0) {
+                    this.addPreloadedChannels();
+                }
+            }
+
+            saveChannels() {
+                Utils.saveToStorage(STORAGE_KEY, this.channels);
+            }
+
+            addPreloadedChannels() {
+                const preloaded = Utils.parseM3U(PRELOADED_CHANNELS);
+                this.channels = preloaded;
+                this.saveChannels();
+                Utils.showToast('تم تحميل القنوات المدمجة', 'success');
+            }
+
+            addChannels(newChannels, merge = true) {
+                if (merge) {
+                    this.channels = [...this.channels, ...newChannels];
+                } else {
+                    this.channels = newChannels;
+                }
+                
+                this.saveChannels();
+                this.updateStats();
+                return this.channels;
+            }
+
+            removeChannel(channelId) {
+                this.channels = this.channels.filter(c => c.id !== channelId);
+                this.saveChannels();
+                this.updateStats();
+            }
+
+            clearChannels() {
+                this.channels = [];
+                this.saveChannels();
+                this.updateStats();
+            }
+
+            filterChannels(searchTerm = '', group = 'all') {
+                return this.channels.filter(channel => {
+                    const matchesSearch = searchTerm === '' || 
+                        channel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        channel.group.toLowerCase().includes(searchTerm.toLowerCase());
+                    
+                    const matchesGroup = group === 'all' || channel.group === group;
+                    
+                    return matchesSearch && matchesGroup;
+                });
+            }
+
+            getGroups() {
+                const groups = new Set(this.channels.map(c => c.group));
+                return Array.from(groups).sort();
+            }
+
+            updateStats() {
+                state.stats = {
+                    total: this.channels.length,
+                    active: this.channels.filter(c => c.status === 'alive').length,
+                    countries: new Set(this.channels.map(c => this.extractCountry(c.group))),
+                    categories: new Set(this.channels.map(c => c.group))
+                };
+
+                this.updateUIStats();
+            }
+
+            extractCountry(group) {
+                const countryMap = {
+                    'مصر': '🇪🇬',
+                    'السعودية': '🇸🇦',
+                    'الإمارات': '🇦🇪',
+                    'المغرب': '🇲🇦',
+                    'الجزائر': '🇩🇿',
+                    'الكويت': '🇰🇼',
+                    'قطر': '🇶🇦',
+                    'عمان': '🇴🇲',
+                    'الأردن': '🇯🇴',
+                    'لبنان': '🇱🇧',
+                    'سوريا': '🇸🇾',
+                    'العراق': '🇮🇶',
+                    'فلسطين': '🇵🇸',
+                    'اليمن': '🇾🇪',
+                    'السودان': '🇸🇩',
+                    'ليبيا': '🇱🇾',
+                    'تونس': '🇹🇳'
+                };
+
+                for (const [key, value] of Object.entries(countryMap)) {
+                    if (group.includes(key)) return value;
+                }
+                
+                return '🌍';
+            }
+
+            updateUIStats() {
+                elements.statTotal.textContent = state.stats.total;
+                elements.statActive.textContent = state.stats.active;
+                elements.statCountries.textContent = state.stats.countries.size;
+                elements.statCategories.textContent = state.stats.categories.size;
+                
+                elements.totalChannels.textContent = `${state.stats.total} قناة`;
+                elements.activeChannels.textContent = `${state.stats.active} نشطة`;
+            }
+        }
+
+        // =================== إدارة الواجهة ===================
+        class UIManager {
+            constructor(channelManager) {
+                this.channelManager = channelManager;
+                this.init();
+            }
+
+            init() {
+                this.renderChannels();
+                this.setupEventListeners();
+                this.updateVersion();
+            }
+
+            renderChannels(filteredChannels = null) {
+                const channelsToRender = filteredChannels || this.channelManager.channels;
+                const container = elements.channelsList;
+
+                if (channelsToRender.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-tv empty-icon"></i>
+                            <p>لا توجد قنوات مضافة</p>
+                            <p style="font-size: 0.9rem;">اختر مصدراً من القائمة أعلاه</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = channelsToRender.map(channel => `
+                    <div class="channel-card ${channel === state.currentChannel ? 'active' : ''}" 
+                         data-id="${channel.id}"
+                         onclick="app.playChannel(${channel.id})">
+                        <img src="${channel.logo}" 
+                             alt="${channel.name}"
+                             class="channel-logo"
+                             onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+                        <div class="channel-info">
+                            <div class="channel-name">${channel.name}</div>
+                            <div class="channel-group">
+                                <span class="channel-status status-${channel.status}"></span>
+                                ${channel.group}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateGroupsFilter() {
+                const groups = this.channelManager.getGroups();
+                const filter = elements.groupFilter;
+                
+                filter.innerHTML = '<option value="all">جميع التصنيفات</option>' +
+                    groups.map(group => `<option value="${group}">${group}</option>`).join('');
+            }
+
+            setupEventListeners() {
+                // البحث
+                elements.searchInput.addEventListener('input', (e) => {
+                    this.filterAndRender();
+                });
+
+                // تصفية المجموعات
+                elements.groupFilter.addEventListener('change', () => {
+                    this.filterAndRender();
+                });
+
+                // استيراد ملف
+                elements.importBtn.addEventListener('click', () => {
+                    elements.fileInput.click();
+                });
+
+                elements.fileInput.addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const text = await file.text();
+                        const newChannels = Utils.parseM3U(text);
+                        this.channelManager.addChannels(newChannels, true);
+                        this.renderChannels();
+                        this.updateGroupsFilter();
+                        Utils.showToast(`تم استيراد ${newChannels.length} قناة`, 'success');
+                    }
+                });
+
+                // فحص القنوات
+                elements.scanBtn.addEventListener('click', async () => {
+                    Utils.showToast('جاري فحص القنوات...', 'info');
+                    elements.statusBadge.innerHTML = '<span class="loading"></span> فحص...';
+                    
+                    let aliveCount = 0;
+                    const sampleSize = Math.min(20, this.channelManager.channels.length);
+                    const sample = this.channelManager.channels.slice(0, sampleSize);
+                    
+                    for (let i = 0; i < sample.length; i++) {
+                        const channel = sample[i];
+                        channel.status = await Utils.checkChannelStatus(channel.url);
+                        if (channel.status === 'alive') aliveCount++;
+                        
+                        this.updateChannelStatus(channel.id, channel.status);
+                    }
+                    
+                    this.channelManager.saveChannels();
+                    this.channelManager.updateStats();
+                    
+                    elements.statusBadge.innerHTML = '<i class="fas fa-circle"></i> جاهز';
+                    Utils.showToast(`تم فحص ${sampleSize} قناة: ${aliveCount} نشطة`, 'success');
+                });
+
+                // حذف القنوات غير الشغالة
+                elements.removeDeadBtn.addEventListener('click', () => {
+                    const deadChannels = this.channelManager.channels.filter(c => c.status === 'dead');
+                    if (deadChannels.length === 0) {
+                        Utils.showToast('لا توجد قنوات غير شغالة', 'info');
+                        return;
+                    }
+                    
+                    if (confirm(`هل تريد حذف ${deadChannels.length} قناة غير شغالة؟`)) {
+                        this.channelManager.channels = this.channelManager.channels.filter(c => c.status !== 'dead');
+                        this.channelManager.saveChannels();
+                        this.renderChannels();
+                        this.channelManager.updateStats();
+                        Utils.showToast(`تم حذف ${deadChannels.length} قناة`, 'success');
+                    }
+                });
+
+                // تصدير القنوات
+                elements.exportBtn.addEventListener('click', () => {
+                    const m3uContent = Utils.exportToM3U(this.channelManager.channels);
+                    Utils.downloadFile(m3uContent, 'channels.m3u');
+                    Utils.showToast('تم تصدير القنوات إلى channels.m3u', 'success');
+                });
+
+                // تحميل مصدر خارجي
+                elements.sourceSelector.addEventListener('change', async (e) => {
+                    const value = e.target.value;
+                    
+                    if (value === '#local-channels') {
+                        this.channelManager.addPreloadedChannels();
+                        this.renderChannels();
+                        this.updateGroupsFilter();
+                        return;
+                    }
+                    
+                    if (!value) return;
+                    
+                    Utils.showToast('جاري تحميل القنوات...', 'info');
+                    elements.statusBadge.innerHTML = '<span class="loading"></span> تحميل...';
+                    
+                    try {
+                        const response = await fetch(value);
+                        const text = await response.text();
+                        const newChannels = Utils.parseM3U(text);
+                        this.channelManager.addChannels(newChannels, true);
+                        this.renderChannels();
+                        this.updateGroupsFilter();
+                        
+                        elements.statusBadge.innerHTML = '<i class="fas fa-circle"></i> جاهز';
+                        Utils.showToast(`تم تحميل ${newChannels.length} قناة`, 'success');
+                    } catch (error) {
+                        elements.statusBadge.innerHTML = '<i class="fas fa-circle"></i> خطأ';
+                        Utils.showToast('فشل في تحميل القنوات', 'error');
+                    }
+                });
+
+                // القائمة الجانبية على الهواتف
+                elements.menuBtn.addEventListener('click', () => {
+                    elements.sidebar.classList.toggle('active');
+                });
+
+                // إغلاق القائمة عند النقر خارجها على الهواتف
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && 
+                        !elements.sidebar.contains(e.target) && 
+                        !elements.menuBtn.contains(e.target)) {
+                        elements.sidebar.classList.remove('active');
+                    }
+                });
+
+                // اختصارات لوحة المفاتيح
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch(e.key.toLowerCase()) {
+                            case 'i':
+                                e.preventDefault();
+                                elements.fileInput.click();
+                                break;
+                            case 'f':
+                                e.preventDefault();
+                                elements.searchInput.focus();
+                                break;
+                            case 'e':
+                                e.preventDefault();
+                                elements.exportBtn.click();
+                                break;
+                        }
+                    }
+                });
+            }
+
+            filterAndRender() {
+                const searchTerm = elements.searchInput.value;
+                const selectedGroup = elements.groupFilter.value;
+                const filtered = this.channelManager.filterChannels(searchTerm, selectedGroup);
+                this.renderChannels(filtered);
+            }
+
+            updateChannelStatus(channelId, status) {
+                const channelElement = document.querySelector(`.channel-card[data-id="${channelId}"]`);
+                if (channelElement) {
+                    const statusElement = channelElement.querySelector('.channel-status');
+                    statusElement.className = `channel-status status-${status}`;
+                }
+            }
+
+            updateVersion() {
+                elements.version.textContent = `v${APP_VERSION}`;
+            }
+        }
+
+        // =================== مشغل الفيديو ===================
+        class VideoPlayer {
+            constructor() {
+                this.video = elements.videoPlayer;
+                this.hls = null;
+                this.init();
+            }
+
+            init() {
+                this.setupVideoEvents();
+            }
+
+            setupVideoEvents() {
+                this.video.addEventListener('playing', () => {
+                    elements.statusBadge.innerHTML = '<i class="fas fa-play-circle"></i> تشغيل';
+                });
+
+                this.video.addEventListener('pause', () => {
+                    elements.statusBadge.innerHTML = '<i class="fas fa-pause-circle"></i> إيقاف';
+                });
+
+                this.video.addEventListener('error', (e) => {
+                    console.error('خطأ في الفيديو:', e);
+                    Utils.showToast('خطأ في تشغيل القناة', 'error');
+                });
+            }
+
+            async playChannel(channel) {
+                if (this.hls) {
+                    this.hls.destroy();
+                    this.hls = null;
+                }
+
+                state.currentChannel = channel;
+                
+                elements.playerTitle.textContent = channel.name;
+                elements.playerSubtitle.textContent = channel.group;
+                
+                Utils.showToast(`جاري تشغيل ${channel.name}`, 'info');
+
+                if (Hls.isSupported() && channel.url.includes('.m3u8')) {
+                    this.playHLS(channel.url);
+                } else {
+                    this.playDirect(channel.url);
+                }
+            }
+
+            playHLS(url) {
+                this.hls = new Hls({
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    backBufferLength: 90
+                });
+
+                this.hls.loadSource(url);
+                this.hls.attachMedia(this.video);
+
+                this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    this.video.play().catch(e => {
+                        console.log("Auto-play blocked:", e);
+                        Utils.showToast('انقر على زر التشغيل للبدء', 'info');
+                    });
+                });
+
+                this.hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        Utils.showToast('خطأ في تشغيل القناة', 'error');
+                        this.playDirect(url);
+                    }
+                });
+            }
+
+            playDirect(url) {
+                this.video.src = url;
+                this.video.load();
+                
+                this.video.play().catch(e => {
+                    console.log("Auto-play blocked:", e);
+                    Utils.showToast('انقر على زر التشغيل للبدء', 'info');
+                });
+            }
+        }
+
+        // =================== التطبيق الرئيسي ===================
+        class App {
+            constructor() {
+                this.channelManager = new ChannelManager();
+                this.uiManager = new UIManager(this.channelManager);
+                this.videoPlayer = new VideoPlayer();
+                this.init();
+            }
+
+            init() {
+                this.setupPlatformSpecificFeatures();
+                this.setupPWA();
+                this.setupAutoSave();
+            }
+
+            setupPlatformSpecificFeatures() {
+                // التحقق من نظام التشغيل
+                const platform = this.detectPlatform();
+                
+                // إضافة ميزات خاصة بكل نظام
+                switch(platform) {
+                    case 'ios':
+                        this.setupIOSFeatures();
+                        break;
+                    case 'android':
+                        this.setupAndroidFeatures();
+                        break;
+                    case 'windows':
+                        this.setupWindowsFeatures();
+                        break;
+                    case 'macos':
+                        this.setupMacOSFeatures();
+                        break;
+                    case 'linux':
+                        this.setupLinuxFeatures();
+                        break;
+                }
+            }
+
+            detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                if (/iphone|ipad|ipod/.test(userAgent)) return 'ios';
+                if (/android/.test(userAgent)) return 'android';
+                if (/win/.test(userAgent)) return 'windows';
+                if (/mac/.test(userAgent)) return 'macos';
+                if (/linux/.test(userAgent)) return 'linux';
+                
+                return 'unknown';
+            }
+
+            setupIOSFeatures() {
+                // إضافة مساحة آمنة
+                document.documentElement.style.setProperty('--safe-top', 'env(safe-area-inset-top)');
+                document.documentElement.style.setProperty('--safe-bottom', 'env(safe-area-inset-bottom)');
+                
+                // تحسين التمرير على iOS
+                document.addEventListener('touchmove', (e) => {
+                    if (e.scale !== 1) e.preventDefault();
+                }, { passive: false });
+            }
+
+            setupAndroidFeatures() {
+                // تمكين وضع ملء الشاشة
+                if (screen.orientation) {
+                    screen.orientation.lock('landscape').catch(() => {});
+                }
+            }
+
+            setupWindowsFeatures() {
+                // تحسينات لوحة المفاتيح
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'F11') {
+                        e.preventDefault();
+                        this.toggleFullscreen();
+                    }
+                });
+            }
+
+            setupMacOSFeatures() {
+                // تحسينات لمستخدمي Mac
+                document.addEventListener('keydown', (e) => {
+                    if (e.metaKey && e.key === 'f') {
+                        e.preventDefault();
+                        elements.searchInput.focus();
+                    }
+                });
+            }
+
+            setupLinuxFeatures() {
+                // ميزات خاصة بـ Linux
+                console.log('Linux system detected');
+            }
+
+            setupPWA() {
+                // Service Worker للتطبيق التقدمي
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('sw.js').then(() => {
+                            console.log('Service Worker registered');
+                        });
+                    });
+                }
+
+                // إضافة إلى الشاشة الرئيسية
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    
+                    // عرض زر التثبيت
+                    this.showInstallPrompt();
+                });
+            }
+
+            showInstallPrompt() {
+                const installBtn = document.createElement('button');
+                installBtn.className = 'btn btn-primary';
+                installBtn.innerHTML = '<i class="fas fa-download"></i> تثبيت التطبيق';
+                installBtn.style.position = 'fixed';
+                installBtn.style.bottom = '70px';
+                installBtn.style.right = '20px';
+                installBtn.style.zIndex = '1000';
+                
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            Utils.showToast('تم تثبيت التطبيق بنجاح', 'success');
+                        }
+                        deferredPrompt = null;
+                        installBtn.remove();
+                    }
+                });
+                
+                document.body.appendChild(installBtn);
+            }
+
+            setupAutoSave() {
+                // حفظ تلقائي عند الخروج
+                window.addEventListener('beforeunload', () => {
+                    const playbackState = {
+                        currentChannel: state.currentChannel?.id,
+                        currentTime: this.videoPlayer.video.currentTime,
+                        volume: this.videoPlayer.video.volume,
+                        timestamp: Date.now()
+                    };
+                    
+                    Utils.saveToStorage('playback_state', playbackState);
+                });
+
+                // استعادة الحالة
+                const savedState = Utils.loadFromStorage('playback_state');
+                if (savedState && Date.now() - savedState.timestamp < 3600000) {
+                    const channel = this.channelManager.channels.find(c => c.id === savedState.currentChannel);
+                    if (channel) {
+                        setTimeout(() => {
+                            this.playChannel(channel);
+                            this.videoPlayer.video.currentTime = savedState.currentTime;
+                            this.videoPlayer.video.volume = savedState.volume;
+                        }, 1000);
+                    }
+                }
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            }
+
+            playChannel(channelId) {
+                const channel = this.channelManager.channels.find(c => c.id === channelId);
+                if (channel) {
+                    this.videoPlayer.playChannel(channel);
+                    this.uiManager.renderChannels();
+                }
+            }
+        }
+
+        // =================== تهيئة التطبيق ===================
+        // تعيين التطبيق في النطاق العام
+        window.app = new App();
+
+        // تحميل التطبيق عند اكتمال الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            // تحديث الإحصائيات الأولية
+            app.channelManager.updateStats();
+            app.uiManager.updateGroupsFilter();
+            
+            // إظهار رسالة ترحيب
+            setTimeout(() => {
+                Utils.showToast('مرحباً بك في MOUSE AI IPTV', 'info', 2000);
+            }, 1000);
+        });
+
+        // تحديث حالة الاتصال
+        window.addEventListener('online', () => {
+            elements.statusBadge.innerHTML = '<i class="fas fa-wifi"></i> متصل';
+            elements.statusBadge.style.color = 'var(--success)';
+        });
+
+        window.addEventListener('offline', () => {
+            elements.statusBadge.innerHTML = '<i class="fas fa-wifi-slash"></i> غير متصل';
+            elements.statusBadge.style.color = 'var(--danger)';
+        });
+
+        // Service Worker بسيط
+        const serviceWorkerCode = `
+            self.addEventListener('install', (event) => {
+                event.waitUntil(
+                    caches.open('mouse-ai-cache-v1').then((cache) => {
+                        return cache.addAll([
+                            './',
+                            './index.html',
+                            './manifest.json'
+                        ]);
+                    })
+                );
+            });
+
+            self.addEventListener('fetch', (event) => {
+                event.respondWith(
+                    caches.match(event.request).then((response) => {
+                        return response || fetch(event.request);
+                    })
+                );
+            });
+        `;
+
+        // إنشاء ملف Service Worker ديناميكياً
+        if ('serviceWorker' in navigator) {
+            const blob = new Blob([serviceWorkerCode], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swURL).then(() => {
+                console.log('Service Worker registered successfully');
+            }).catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+
+        // ملف Manifest للتطبيق التقدمي
+        const manifest = {
+            "name": "MOUSE AI IPTV",
+            "short_name": "MOUSE AI",
+            "description": "مشغل قنوات IPTV ذكي متعدد المنصات",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#0a0e17",
+            "theme_color": "#00d2ff",
+            "icons": [
+                {
+                    "src": "https://cdn-icons-png.flaticon.com/512/2972/2972544.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "https://cdn-icons-png.flaticon.com/512/2972/2972544.png",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                }
+            ]
+        };
+
+        // إنشاء عنصر Manifest ديناميكياً
+        const manifestElement = document.createElement('link');
+        manifestElement.rel = 'manifest';
+        manifestElement.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(manifest));
+        document.head.appendChild(manifestElement);
+    </script>
 </body>
 </html>
